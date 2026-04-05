@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
     branches: ['*']
 
@@ -24,7 +24,7 @@ jobs:
           RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
 
   release:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     needs: build-and-test
     runs-on: ubuntu-latest
     permissions:

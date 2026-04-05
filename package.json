@@ -21,7 +21,8 @@
   "scripts": {
     "test": "node --test test/server.test.mjs",
     "lint": "eslint .",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "push:watch": "bash scripts/push-and-watch.sh"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
