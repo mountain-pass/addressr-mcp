@@ -8,7 +8,7 @@ set -euo pipefail
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 
 # ── 1. Find the open changesets release PR ───────────────────────────────────
-PR_JSON=$(gh pr list --base main --state open --search "chore: release in:title" --limit 1 --json number,url,title 2>/dev/null)
+PR_JSON=$(gh pr list --base main --state open --search "Version Packages in:title" --limit 1 --json number,url,title 2>/dev/null)
 PR_NUMBER=$(echo "$PR_JSON" | jq -r '.[0].number // empty')
 PR_URL=$(echo "$PR_JSON" | jq -r '.[0].url // empty')
 PR_TITLE=$(echo "$PR_JSON" | jq -r '.[0].title // empty')
@@ -27,7 +27,7 @@ echo ""
 echo "Checking CI status..."
 BUILD_STATUS=""
 for i in $(seq 1 30); do
-  BUILD_STATUS=$(gh pr checks "$PR_NUMBER" --json name,state --jq '.[] | select(.name == "build-and-test") | .state' 2>/dev/null)
+  BUILD_STATUS=$(gh pr checks "$PR_NUMBER" --json name,state --jq '.[] | select(.name == "build-and-test") | .state' 2>/dev/null || echo "")
   case "$BUILD_STATUS" in
     SUCCESS) echo "Build check passed."; break ;;
     FAILURE|ERROR)
