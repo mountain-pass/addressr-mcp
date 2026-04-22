@@ -10,3 +10,5 @@ lib/
 *.tgz
 /tmp/
 .risk-reports/
+.claude/settings.local.json
+
