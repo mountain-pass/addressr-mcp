@@ -61,7 +61,7 @@ echo "  Release job: ${RELEASE_JOB:-skipped}"
 echo ""
 
 # ── 5. Check for release PR ────────────────────────────────────────────────
-PR_URL=$(gh pr list --base main --state open --search "chore: release in:title" --limit 1 --json url --jq '.[0].url // empty' 2>/dev/null)
+PR_URL=$(gh pr list --base main --state open --search "Version Packages in:title" --limit 1 --json url --jq '.[0].url // empty' 2>/dev/null)
 if [ -n "$PR_URL" ]; then
   echo "Release PR available: $PR_URL"
 else
