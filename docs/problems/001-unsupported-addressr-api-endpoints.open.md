@@ -18,7 +18,7 @@ The Addressr API has added new endpoints that are not currently supported by the
 
 ## Workaround
 
-None identified yet.
+Users must call the Addressr API directly (e.g., via curl or RapidAPI playground) for localities, postcodes, and states endpoints. No workaround exists within the MCP server.
 
 ## Impact Assessment
 
@@ -29,11 +29,39 @@ None identified yet.
 
 ## Root Cause Analysis
 
+### Confirmed Root Cause
+
+The MCP server in `src/server.mjs` only registers 3 tools while the Addressr API exposes 8+ endpoints. The server follows link relations from the API root but only wires up tools for `search-addresses` (rel: `https://addressr.io/rels/address-search`), `get-address` (rel: `canonical` on address resources), and `health` (rel: `https://addressr.io/rels/health`).
+
+Missing endpoints identified from the Addressr API surface:
+- `GET /localities?q=` and `GET /localities/{pid}` — not exposed as MCP tools
+- `GET /postcodes?q=` and `GET /postcodes/{postcode}` — not exposed as MCP tools
+- `GET /states?q=` and `GET /states/{abbreviation}` — not exposed as MCP tools
+
+### Fix Strategy (Revised)
+
+Instead of statically adding 6 new tool registrations, make the MCP server **dynamically discover and register tools** based on the link relations provided by the Addressr API root (`/`). The server already uses `glowUpFetchWithLinks` to follow hypermedia links. The dynamic approach would:
+
+1. Fetch the API root at startup
+2. Parse available link relations (`rel` values in Link headers or HAL `_links`)
+3. Map each discoverable relation to an MCP tool definition (name, description, Zod schema)
+4. Register tools dynamically via `server.tool()` before connecting the transport
+
+This automatically supports any future Addressr API endpoints without code changes, and keeps the MCP server truly thin — it proxies whatever the API exposes rather than hardcoding a subset.
+
+**Open question**: How to derive Zod schemas and human-friendly tool names/descriptions from bare link relations. The API may need to embed machine-readable metadata (e.g., OpenAPI hints, schema links) or the server may need a static mapping table from rel → {name, description, schema}.
+
 ### Investigation Tasks
 
-- [ ] Investigate root cause
+- [x] Investigate root cause
 - [ ] Create reproduction test
 - [ ] Create INVEST story for permanent fix
+
+## Dependencies
+
+- **Blocks**: (none)
+- **Blocked by**: P002
+- **Composes with**: (none)
 
 ## Related
 
