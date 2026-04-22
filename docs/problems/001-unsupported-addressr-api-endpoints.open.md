@@ -3,6 +3,8 @@
 **Status**: Open
 **Reported**: 2026-04-23
 **Priority**: 12 (Medium-High) — Impact: Moderate (3) x Likelihood: Likely (4)
+**Effort**: M
+**WSJF**: 6.0
 
 ## Description
 
