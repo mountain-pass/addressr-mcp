@@ -16,6 +16,9 @@ Software developer integrating the Addressr MCP server into their application.
 | JTBD-004 | Search Australian Localities | [JTBD-004-search-localities.proposed.md](developer/JTBD-004-search-localities.proposed.md) |
 | JTBD-005 | Search Australian Postcodes | [JTBD-005-search-postcodes.proposed.md](developer/JTBD-005-search-postcodes.proposed.md) |
 | JTBD-006 | Search Australian States | [JTBD-006-search-states.proposed.md](developer/JTBD-006-search-states.proposed.md) |
+| JTBD-007 | Get Locality Details | [JTBD-007-get-locality-details.proposed.md](developer/JTBD-007-get-locality-details.proposed.md) |
+| JTBD-008 | Get Postcode Details | [JTBD-008-get-postcode-details.proposed.md](developer/JTBD-008-get-postcode-details.proposed.md) |
+| JTBD-009 | Get State Details | [JTBD-009-get-state-details.proposed.md](developer/JTBD-009-get-state-details.proposed.md) |
 
 ## Maintainer
 

@@ -214,6 +214,71 @@ export async function createServer() {
     },
   );
 
+  server.tool(
+    'get-locality',
+    'Get full locality details by locality ID (PID). Returns structured locality data including name, state, postcode, and class. PIDs are obtained from search-localities results.',
+    {
+      localityId: z
+        .string()
+        .describe(
+          "Locality Property ID (PID), e.g. 'GAUTH-12345'. Obtained from search-localities results.",
+        ),
+    },
+    async ({ localityId }) => {
+      const root = await getRoot();
+      const baseUrl = new URL(root.url);
+      const localityUrl = new URL(
+        `/localities/${encodeURIComponent(localityId)}`,
+        baseUrl,
+      );
+      const response = await fetchLink(localityUrl.toString());
+      const data = await response.json();
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'get-postcode',
+    'Get full postcode details by postcode value. Returns the postcode and associated localities. Postcodes are obtained from search-postcodes results.',
+    {
+      postcode: z.string().describe('Australian postcode, e.g. "2000". Obtained from search-postcodes results.'),
+    },
+    async ({ postcode }) => {
+      const root = await getRoot();
+      const baseUrl = new URL(root.url);
+      const postcodeUrl = new URL(
+        `/postcodes/${encodeURIComponent(postcode)}`,
+        baseUrl,
+      );
+      const response = await fetchLink(postcodeUrl.toString());
+      const data = await response.json();
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'get-state',
+    'Get full state details by state abbreviation. Returns state name and abbreviation. Abbreviations are obtained from search-states results.',
+    {
+      stateAbbreviation: z
+        .string()
+        .describe(
+          'Australian state abbreviation, e.g. "NSW", "VIC". Obtained from search-states results.',
+        ),
+    },
+    async ({ stateAbbreviation }) => {
+      const root = await getRoot();
+      const baseUrl = new URL(root.url);
+      const stateUrl = new URL(
+        `/states/${encodeURIComponent(stateAbbreviation)}`,
+        baseUrl,
+      );
+      const response = await fetchLink(stateUrl.toString());
+      const data = await response.json();
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    },
+  );
+
   return server;
 }
 
