@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "addressr": {
+      "command": "bash",
+      "args": ["./scripts/run-mcp.sh"]
+    }
+  }
+}
