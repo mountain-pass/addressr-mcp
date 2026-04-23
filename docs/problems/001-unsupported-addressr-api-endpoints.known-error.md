@@ -1,6 +1,6 @@
 # Problem 001: Unsupported Addressr API Endpoints
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-04-23
 **Priority**: 12 (Medium-High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M
@@ -54,8 +54,16 @@ This automatically supports any future Addressr API endpoints without code chang
 ### Investigation Tasks
 
 - [x] Investigate root cause
-- [ ] Create reproduction test
-- [ ] Create INVEST story for permanent fix
+- [x] Create reproduction test
+- [x] Implement fix
+
+## Fix Released
+
+Implemented dynamic tool discovery via `REL_TO_TOOL` mapping in `src/server.mjs`. The server now registers tools for all link relations advertised by the Addressr API root: `search-addresses`, `search-localities`, `search-postcodes`, `search-states`, `get-address`, `health`.
+
+- ADR-002 documents the dynamic discovery pattern
+- `test/dynamic-tools.test.mjs` verifies dynamic registration
+- Awaiting user verification before closing
 
 ## Dependencies
 

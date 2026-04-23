@@ -8,9 +8,84 @@ const API_URL =
 const API_HOST = process.env.RAPIDAPI_HOST || 'addressr.p.rapidapi.com';
 
 const SEARCH_REL = 'https://addressr.io/rels/address-search';
+const POSTCODE_SEARCH_REL = 'https://addressr.io/rels/postcode-search';
+const LOCALITY_SEARCH_REL = 'https://addressr.io/rels/locality-search';
+const STATE_SEARCH_REL = 'https://addressr.io/rels/state-search';
 const HEALTH_REL = 'https://addressr.io/rels/health';
 
-export function createServer() {
+export const REL_TO_TOOL = {
+  [SEARCH_REL]: {
+    name: 'search-addresses',
+    description:
+      'Search Australian addresses by street, suburb, or postcode. Returns up to 8 results per page with standard address format, relevance score, and property ID (PID). Data sourced from the Geocoded National Address File (G-NAF).',
+    schema: {
+      q: z
+        .string()
+        .describe(
+          'Australian address search query (min 3 chars). e.g. "1 george st sydney", "2000", "pyrmont nsw"',
+        ),
+      page: z
+        .number()
+        .optional()
+        .describe('Page number for paginated results (default: first page)'),
+    },
+  },
+  [POSTCODE_SEARCH_REL]: {
+    name: 'search-postcodes',
+    description:
+      'Search Australian postcodes by partial text or number. Returns matching postcodes and their associated localities.',
+    schema: {
+      q: z
+        .string()
+        .describe(
+          'Australian postcode search query. e.g. "2000", "200", "sydney"',
+        ),
+      page: z
+        .number()
+        .optional()
+        .describe('Page number for paginated results (default: first page)'),
+    },
+  },
+  [LOCALITY_SEARCH_REL]: {
+    name: 'search-localities',
+    description:
+      'Search Australian localities (suburbs) by name. Returns matching localities with state and postcode.',
+    schema: {
+      q: z
+        .string()
+        .describe(
+          'Australian locality search query. e.g. "sydney", "melbourne", "pyrmont"',
+        ),
+      page: z
+        .number()
+        .optional()
+        .describe('Page number for paginated results (default: first page)'),
+    },
+  },
+  [STATE_SEARCH_REL]: {
+    name: 'search-states',
+    description:
+      'Search Australian states and territories by name or abbreviation. Returns all matching states.',
+    schema: {
+      q: z
+        .string()
+        .describe(
+          'Australian state search query. e.g. "NSW", "New South Wales", "Victoria"',
+        ),
+      page: z
+        .number()
+        .optional()
+        .describe('Page number for paginated results (default: first page)'),
+    },
+  },
+  [HEALTH_REL]: {
+    name: 'health',
+    description: 'Check API service status. Returns version, timestamp, and health status.',
+    schema: {},
+  },
+};
+
+export async function createServer() {
   const key = process.env.RAPIDAPI_KEY;
   if (!key) {
     console.error(
@@ -46,60 +121,52 @@ export function createServer() {
     version: '0.1.0',
   });
 
-  server.tool(
-    'search-addresses',
-    'Search Australian addresses by street, suburb, or postcode. Returns up to 8 results per page with standard address format, relevance score, and property ID (PID). Data sourced from the Geocoded National Address File (G-NAF).',
-    {
-      q: z
-        .string()
-        .describe(
-          'Australian address search query (min 3 chars). e.g. "1 george st sydney", "2000", "pyrmont nsw"',
-        ),
-      page: z
-        .number()
-        .optional()
-        .describe('Page number for paginated results (default: first page)'),
-    },
-    async ({ q, page }) => {
-      const root = await getRoot();
-      const params = { q };
-      if (page !== undefined) params.page = String(page);
-      const searchLinks = root.links(SEARCH_REL, params);
-      if (!searchLinks.length) {
-        throw new Error('Search link relation not found in API root');
-      }
-      const response = await fetchLink(searchLinks[0]);
-      const data = await response.json();
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
-    },
-  );
+  let root;
+  let advertisedRels = new Set();
+  try {
+    root = await getRoot();
+    const allLinks = root.links();
+    advertisedRels = new Set(allLinks.map((l) => l.rel));
+  } catch (err) {
+    console.warn(
+      `Warning: Could not fetch Addressr API root (${err.message}). ` +
+        'Falling back to registering only health and get-address tools.',
+    );
+  }
 
-  server.tool(
-    'get-address',
-    'Get full address details by property ID (PID). Returns geocoding (lat/long), structured components (street, suburb, state, postcode, unit/flat), and confidence score. PIDs are obtained from search results.',
-    {
-      addressId: z
-        .string()
-        .describe(
-          "G-NAF Property ID (PID), e.g. 'GANSW710280564'. Obtained from search results.",
-        ),
-    },
-    async ({ addressId }) => {
-      // Follow the canonical link pattern from search results
-      // The search response includes canonical links: </addresses/{pid}>; rel=canonical
-      // We construct the same URL and follow it via fetchLink
-      const root = await getRoot();
-      const baseUrl = new URL(root.url);
-      const addressUrl = new URL(
-        `/addresses/${encodeURIComponent(addressId)}`,
-        baseUrl,
-      );
-      const response = await fetchLink(addressUrl.toString());
-      const data = await response.json();
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
-    },
-  );
+  // Register search tools dynamically for each advertised rel
+  for (const [rel, config] of Object.entries(REL_TO_TOOL)) {
+    if (rel === HEALTH_REL) {
+      // Health is always registered — it has its own fallback logic
+      continue;
+    }
 
+    if (!advertisedRels.has(rel)) {
+      console.warn(`Warning: API root does not advertise ${rel}; skipping ${config.name}`);
+      continue;
+    }
+
+    // Generic search tool handler
+    server.tool(
+      config.name,
+      config.description,
+      config.schema,
+      async ({ q, page }) => {
+        const root = await getRoot();
+        const params = { q };
+        if (page !== undefined) params.page = String(page);
+        const searchLinks = root.links(rel, params);
+        if (!searchLinks.length) {
+          throw new Error(`Search link relation not found in API root: ${rel}`);
+        }
+        const response = await fetchLink(searchLinks[0]);
+        const data = await response.json();
+        return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      },
+    );
+  }
+
+  // Always register health — it has custom fallback logic
   server.tool(
     'health',
     'Check API service status. Returns version, timestamp, and health status.',
@@ -123,10 +190,34 @@ export function createServer() {
     },
   );
 
+  // Always register get-address (follows canonical links from search results)
+  server.tool(
+    'get-address',
+    'Get full address details by property ID (PID). Returns geocoding (lat/long), structured components (street, suburb, state, postcode, unit/flat), and confidence score. PIDs are obtained from search results.',
+    {
+      addressId: z
+        .string()
+        .describe(
+          "G-NAF Property ID (PID), e.g. 'GANSW710280564'. Obtained from search results.",
+        ),
+    },
+    async ({ addressId }) => {
+      const root = await getRoot();
+      const baseUrl = new URL(root.url);
+      const addressUrl = new URL(
+        `/addresses/${encodeURIComponent(addressId)}`,
+        baseUrl,
+      );
+      const response = await fetchLink(addressUrl.toString());
+      const data = await response.json();
+      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    },
+  );
+
   return server;
 }
 
 // Start server when run directly
-const server = createServer();
+const server = await createServer();
 const transport = new StdioServerTransport();
 await server.connect(transport);
