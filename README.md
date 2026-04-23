@@ -77,6 +77,95 @@ Add to `.vscode/mcp.json` (local config, never committed):
 }
 ```
 
+## Key Safety
+
+The setup snippets above paste your RapidAPI key in plaintext. That is the simplest path, but it has real leak vectors:
+
+- **Claude Desktop config** (`~/Library/Application Support/Claude/claude_desktop_config.json`) is user-readable and is typically swept up by OS backups — Time Machine, or iCloud Drive if your Library is synced.
+- **`.cursor/mcp.json`** and **`.vscode/mcp.json`** sit inside your project directory and are easy to commit by accident. If you keep the key there, add the file to `.gitignore`.
+- **`export ADDRESSR_RAPIDAPI_KEY=...`** is written to `~/.zsh_history` or `~/.bash_history` and survives there until pruned.
+
+Pick whichever mitigation you can live with:
+
+### 1. Skip shell history with a leading space
+
+If your shell ignores space-prefixed commands (`setopt HIST_IGNORE_SPACE` in zsh, `HISTCONTROL=ignorespace` in bash), prefix the `export`:
+
+```bash
+ export ADDRESSR_RAPIDAPI_KEY=your-rapidapi-key
+claude mcp add addressr -- npx -y @mountainpass/addressr-mcp
+```
+
+### 2. macOS Keychain
+
+Store the key once:
+
+```bash
+security add-generic-password -s addressr-rapidapi -a "$USER" -w
+```
+
+Load it when starting Claude Code:
+
+```bash
+export ADDRESSR_RAPIDAPI_KEY=$(security find-generic-password -s addressr-rapidapi -w)
+claude mcp add addressr -- npx -y @mountainpass/addressr-mcp
+```
+
+### 3. 1Password CLI
+
+If you use 1Password, reference the key from a vault with `op://` syntax in a committed `.env.tpl` (secrets stay in 1Password, the template is safe to commit):
+
+```
+ADDRESSR_RAPIDAPI_KEY={{ op://Private/addressr-rapidapi/credential }}
+```
+
+Hydrate at runtime without writing the key to disk:
+
+```bash
+op run --env-file=.env.tpl -- claude mcp add addressr -- npx -y @mountainpass/addressr-mcp
+```
+
+### 4. Wrapper script for Claude Desktop / Cursor / VS Code
+
+Clients that cannot inherit shell environment (Claude Desktop launched from the Dock, for example) can be pointed at a wrapper script that loads the key from Keychain or 1Password at launch time, instead of having the key embedded in the config JSON:
+
+```json
+{
+  "mcpServers": {
+    "addressr": {
+      "command": "bash",
+      "args": ["/absolute/path/to/run-addressr-mcp.sh"]
+    }
+  }
+}
+```
+
+`run-addressr-mcp.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -e
+export ADDRESSR_RAPIDAPI_KEY=$(security find-generic-password -s addressr-rapidapi -w)
+exec npx -y @mountainpass/addressr-mcp
+```
+
+Then:
+
+```bash
+chmod 700 run-addressr-mcp.sh
+```
+
+### 5. Restrict permissions on any file that does hold the key
+
+```bash
+chmod 600 ~/Library/Application\ Support/Claude/claude_desktop_config.json
+chmod 600 .cursor/mcp.json .vscode/mcp.json 2>/dev/null || true
+```
+
+### If the key leaks
+
+Rotate it immediately at [RapidAPI → My Apps](https://rapidapi.com/developer/apps). Deleting the key from a committed file does not remove it from git history, and the key remains valid until you revoke it upstream.
+
 ## Environment Variables
 
 | Variable | Description |
