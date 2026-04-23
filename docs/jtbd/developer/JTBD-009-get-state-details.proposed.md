@@ -10,10 +10,10 @@ screens:
 # JTBD-009: Get State Details
 
 ## Job Statement
-When I have identified a state from search results, I want to retrieve its full details, so I can validate or display state-level information.
+When I have selected a state from search results, I want to retrieve its full details, so I can validate or display state-level information.
 
 ## Desired Outcomes
-- Retrieve state details by abbreviation (obtained from search results)
+- Retrieve state details by following the canonical link URL from search results
 - Results include state name and abbreviation
 - Simple lookup from search result to detail view
 

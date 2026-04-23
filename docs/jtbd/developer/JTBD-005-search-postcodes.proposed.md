@@ -15,6 +15,7 @@ When I need to validate or find an Australian postcode, I want to search postcod
 ## Desired Outcomes
 - Receive relevant postcode suggestions from partial input
 - Results include postcode and associated localities
+- Results include canonical link URL (`_links`) for detail retrieval
 - Search works for full or partial postcodes
 
 ## Persona Constraints

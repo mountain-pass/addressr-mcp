@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { glowUpFetchWithLinks } from '@windyroad/fetch-link';
+import { LinkHeader } from '@windyroad/link-header';
 import { z } from 'zod';
 
 const API_URL =
@@ -86,7 +87,7 @@ export const REL_TO_TOOL = {
 };
 
 export async function createServer() {
-  const key = process.env.RAPIDAPI_KEY;
+  const key = process.env.ADDRESSR_RAPIDAPI_KEY || process.env.RAPIDAPI_KEY;
   if (!key) {
     console.error(
       'RAPIDAPI_KEY environment variable is required. Get one at https://rapidapi.com/addressr-addressr-default/api/addressr',
@@ -160,8 +161,8 @@ export async function createServer() {
           throw new Error(`Search link relation not found in API root: ${rel}`);
         }
         const response = await fetchLink(searchLinks[0]);
-        const data = await response.json();
-        return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+        const envelope = await toEnvelope(response);
+        return { content: [{ type: 'text', text: JSON.stringify(envelope, null, 2) }] };
       },
     );
   }
@@ -176,110 +177,96 @@ export async function createServer() {
       const healthLinks = root.links(HEALTH_REL);
       if (healthLinks.length && healthLinks[0].uri !== 'undefined') {
         const response = await fetchLink(healthLinks[0]);
-        const data = await response.json();
+        const envelope = await toEnvelope(response);
         return {
-          content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(envelope, null, 2) }],
         };
       }
       // Fallback: health link URI is currently broken in production (returns "undefined")
       const baseUrl = new URL(root.url);
       const healthUrl = new URL('/health', baseUrl);
       const response = await fetchLink(healthUrl.toString());
-      const data = await response.json();
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+      const envelope = await toEnvelope(response);
+      return { content: [{ type: 'text', text: JSON.stringify(envelope, null, 2) }] };
     },
   );
 
   // Always register get-address (follows canonical links from search results)
   server.tool(
     'get-address',
-    'Get full address details by property ID (PID). Returns geocoding (lat/long), structured components (street, suburb, state, postcode, unit/flat), and confidence score. PIDs are obtained from search results.',
+    'Get full address details by URL. Follow the canonical link from search results to retrieve geocoding (lat/long), structured components (street, suburb, state, postcode, unit/flat), and confidence score.',
     {
-      addressId: z
+      url: z
         .string()
         .describe(
-          "G-NAF Property ID (PID), e.g. 'GANSW710280564'. Obtained from search results.",
+          "Canonical URL for the address resource, e.g. 'https://addressr.p.rapidapi.com/addresses/GANSW710280564'. Obtained from search-addresses results._links.",
         ),
     },
-    async ({ addressId }) => {
-      const root = await getRoot();
-      const baseUrl = new URL(root.url);
-      const addressUrl = new URL(
-        `/addresses/${encodeURIComponent(addressId)}`,
-        baseUrl,
-      );
-      const response = await fetchLink(addressUrl.toString());
-      const data = await response.json();
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    async ({ url }) => {
+      const response = await fetchLink(url);
+      const envelope = await toEnvelope(response);
+      return { content: [{ type: 'text', text: JSON.stringify(envelope, null, 2) }] };
     },
   );
 
   server.tool(
     'get-locality',
-    'Get full locality details by locality ID (PID). Returns structured locality data including name, state, postcode, and class. PIDs are obtained from search-localities results.',
+    'Get full locality details by URL. Follow the canonical link from search results to retrieve structured locality data including name, state, postcode, and class.',
     {
-      localityId: z
+      url: z
         .string()
         .describe(
-          "Locality Property ID (PID), e.g. 'GAUTH-12345'. Obtained from search-localities results.",
+          "Canonical URL for the locality resource, e.g. 'https://addressr.p.rapidapi.com/localities/GAUTH-12345'. Obtained from search-localities results._links.",
         ),
     },
-    async ({ localityId }) => {
-      const root = await getRoot();
-      const baseUrl = new URL(root.url);
-      const localityUrl = new URL(
-        `/localities/${encodeURIComponent(localityId)}`,
-        baseUrl,
-      );
-      const response = await fetchLink(localityUrl.toString());
-      const data = await response.json();
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    async ({ url }) => {
+      const response = await fetchLink(url);
+      const envelope = await toEnvelope(response);
+      return { content: [{ type: 'text', text: JSON.stringify(envelope, null, 2) }] };
     },
   );
 
   server.tool(
     'get-postcode',
-    'Get full postcode details by postcode value. Returns the postcode and associated localities. Postcodes are obtained from search-postcodes results.',
+    'Get full postcode details by URL. Follow the canonical link from search results to retrieve the postcode and associated localities.',
     {
-      postcode: z.string().describe('Australian postcode, e.g. "2000". Obtained from search-postcodes results.'),
+      url: z.string().describe("Canonical URL for the postcode resource, e.g. 'https://addressr.p.rapidapi.com/postcodes/2000'. Obtained from search-postcodes results._links."),
     },
-    async ({ postcode }) => {
-      const root = await getRoot();
-      const baseUrl = new URL(root.url);
-      const postcodeUrl = new URL(
-        `/postcodes/${encodeURIComponent(postcode)}`,
-        baseUrl,
-      );
-      const response = await fetchLink(postcodeUrl.toString());
-      const data = await response.json();
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    async ({ url }) => {
+      const response = await fetchLink(url);
+      const envelope = await toEnvelope(response);
+      return { content: [{ type: 'text', text: JSON.stringify(envelope, null, 2) }] };
     },
   );
 
   server.tool(
     'get-state',
-    'Get full state details by state abbreviation. Returns state name and abbreviation. Abbreviations are obtained from search-states results.',
+    'Get full state details by URL. Follow the canonical link from search results to retrieve state name and abbreviation.',
     {
-      stateAbbreviation: z
+      url: z
         .string()
         .describe(
-          'Australian state abbreviation, e.g. "NSW", "VIC". Obtained from search-states results.',
+          'Canonical URL for the state resource, e.g. "https://addressr.p.rapidapi.com/states/NSW". Obtained from search-states results._links.',
         ),
     },
-    async ({ stateAbbreviation }) => {
-      const root = await getRoot();
-      const baseUrl = new URL(root.url);
-      const stateUrl = new URL(
-        `/states/${encodeURIComponent(stateAbbreviation)}`,
-        baseUrl,
-      );
-      const response = await fetchLink(stateUrl.toString());
-      const data = await response.json();
-      return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    async ({ url }) => {
+      const response = await fetchLink(url);
+      const envelope = await toEnvelope(response);
+      return { content: [{ type: 'text', text: JSON.stringify(envelope, null, 2) }] };
     },
   );
 
   return server;
+}
+
+async function toEnvelope(response) {
+  const headers = Object.fromEntries(response.headers.entries());
+  const body = await response.json();
+  const linkHeader = headers.link;
+  if (linkHeader) {
+    headers.link = new LinkHeader(linkHeader).refs;
+  }
+  return { status: response.status, headers, body };
 }
 
 // Start server when run directly

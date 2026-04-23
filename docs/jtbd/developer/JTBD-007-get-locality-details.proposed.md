@@ -10,10 +10,10 @@ screens:
 # JTBD-007: Get Locality Details
 
 ## Job Statement
-When I have identified a locality from search results, I want to retrieve its full details, so I can validate or display suburb-level information.
+When I have selected a locality from search results, I want to retrieve its full details, so I can validate or display suburb-level information.
 
 ## Desired Outcomes
-- Retrieve locality details by PID (obtained from search results)
+- Retrieve locality details by following the canonical link URL from search results
 - Results include structured locality data (name, state, postcode, class)
 - Simple lookup from search result to detail view
 

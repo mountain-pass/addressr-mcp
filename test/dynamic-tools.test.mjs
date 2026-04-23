@@ -37,7 +37,15 @@ function startMockApi() {
         res.end(JSON.stringify({ name: 'New South Wales', abbreviation: 'NSW' }));
         return;
       }
-      res.writeHead(200, { 'Content-Type': 'application/json' });
+      if (req.url === '/addresses/test-pid') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ pid: 'test-pid', sla: '1 Test St, Testville NSW 2000' }));
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        Link: '</results/test-pid>; rel=canonical; anchor="#/0", </results?page=2>; rel=next',
+      });
       res.end(JSON.stringify([{ pid: 'test-pid', name: 'Test' }]));
     });
     server.listen(0, '127.0.0.1', () => {
@@ -65,9 +73,39 @@ describe('dynamic tool registration', () => {
     );
   });
 
+  it('accepts ADDRESSR_RAPIDAPI_KEY as fallback for RAPIDAPI_KEY', async () => {
+    const mockApi = await startMockApi();
+
+    const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
+    const transport = new StdioClientTransport({
+      command: 'node',
+      args: ['src/server.mjs'],
+      env: {
+        ...process.env,
+        RAPIDAPI_KEY: undefined,
+        ADDRESSR_RAPIDAPI_KEY: 'dummy',
+        ADDRESSR_API_URL: mockApi.url,
+        ADDRESSR_API_HOST: 'addressr.p.rapidapi.com',
+      },
+    });
+
+    await client.connect(transport);
+
+    try {
+      const { tools } = await client.listTools();
+      const toolNames = tools.map((t) => t.name);
+      assert.ok(toolNames.includes('health'), 'Server should start with ADDRESSR_RAPIDAPI_KEY');
+      assert.ok(toolNames.includes('get-address'), 'Server should register get-address with ADDRESSR_RAPIDAPI_KEY');
+    } finally {
+      await client.close();
+      transport.close();
+      mockApi.server.close();
+    }
+  });
+
   it('falls back to health and get-address when API root is unreachable', async () => {
     const mockApi = await startMockApi();
-    mockApi.server.close(); // Immediately close so the server gets connection refused
+    mockApi.server.close();
 
     const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
     const transport = new StdioClientTransport({
@@ -139,7 +177,7 @@ describe('dynamic tool registration', () => {
     }
   });
 
-  it('registers get-locality detail tool', async () => {
+  it('search results include status, headers, and body envelope', async () => {
     const mockApi = await startMockApi();
 
     const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
@@ -157,18 +195,86 @@ describe('dynamic tool registration', () => {
     await client.connect(transport);
 
     try {
-      const { tools } = await client.listTools();
-      const toolNames = tools.map((t) => t.name);
-      assert.ok(toolNames.includes('get-locality'), 'Should register get-locality tool');
+      const result = await client.callTool({
+        name: 'search-addresses',
+        arguments: { q: 'test' },
+      });
+      const text = result.content.find((c) => c.type === 'text')?.text;
+      assert.ok(text, 'Should return text content');
+      const envelope = JSON.parse(text);
+      assert.strictEqual(envelope.status, 200, 'Should have status 200');
+      assert.ok(envelope.headers, 'Should have headers');
+      assert.ok(Array.isArray(envelope.body), 'Body should be an array');
+    } finally {
+      await client.close();
+      transport.close();
+      mockApi.server.close();
+    }
+  });
 
+  it('get-address accepts url parameter and returns envelope', async () => {
+    const mockApi = await startMockApi();
+
+    const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
+    const transport = new StdioClientTransport({
+      command: 'node',
+      args: ['src/server.mjs'],
+      env: {
+        ...process.env,
+        RAPIDAPI_KEY: 'dummy',
+        ADDRESSR_API_URL: mockApi.url,
+        ADDRESSR_API_HOST: 'addressr.p.rapidapi.com',
+      },
+    });
+
+    await client.connect(transport);
+
+    try {
+      const result = await client.callTool({
+        name: 'get-address',
+        arguments: { url: `${mockApi.url}addresses/test-pid` },
+      });
+      const text = result.content.find((c) => c.type === 'text')?.text;
+      assert.ok(text, 'Should return text content');
+      const envelope = JSON.parse(text);
+      assert.strictEqual(envelope.status, 200, 'Envelope should have status 200');
+      assert.ok(envelope.headers, 'Envelope should have headers');
+      assert.ok(envelope.body, 'Envelope should have body');
+      assert.strictEqual(envelope.body.pid, 'test-pid');
+    } finally {
+      await client.close();
+      transport.close();
+      mockApi.server.close();
+    }
+  });
+
+  it('get-locality accepts url parameter and returns envelope', async () => {
+    const mockApi = await startMockApi();
+
+    const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
+    const transport = new StdioClientTransport({
+      command: 'node',
+      args: ['src/server.mjs'],
+      env: {
+        ...process.env,
+        RAPIDAPI_KEY: 'dummy',
+        ADDRESSR_API_URL: mockApi.url,
+        ADDRESSR_API_HOST: 'addressr.p.rapidapi.com',
+      },
+    });
+
+    await client.connect(transport);
+
+    try {
       const result = await client.callTool({
         name: 'get-locality',
-        arguments: { localityId: 'test-pid' },
+        arguments: { url: `${mockApi.url}localities/test-pid` },
       });
       const text = result.content.find((c) => c.type === 'text')?.text;
       assert.ok(text, 'Should return text content');
-      const data = JSON.parse(text);
-      assert.strictEqual(data.name, 'Test Locality');
+      const envelope = JSON.parse(text);
+      assert.strictEqual(envelope.status, 200);
+      assert.strictEqual(envelope.body.name, 'Test Locality');
     } finally {
       await client.close();
       transport.close();
@@ -176,7 +282,7 @@ describe('dynamic tool registration', () => {
     }
   });
 
-  it('registers get-postcode detail tool', async () => {
+  it('get-postcode accepts url parameter and returns envelope', async () => {
     const mockApi = await startMockApi();
 
     const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
@@ -194,18 +300,15 @@ describe('dynamic tool registration', () => {
     await client.connect(transport);
 
     try {
-      const { tools } = await client.listTools();
-      const toolNames = tools.map((t) => t.name);
-      assert.ok(toolNames.includes('get-postcode'), 'Should register get-postcode tool');
-
       const result = await client.callTool({
         name: 'get-postcode',
-        arguments: { postcode: '2000' },
+        arguments: { url: `${mockApi.url}postcodes/2000` },
       });
       const text = result.content.find((c) => c.type === 'text')?.text;
       assert.ok(text, 'Should return text content');
-      const data = JSON.parse(text);
-      assert.strictEqual(data.postcode, '2000');
+      const envelope = JSON.parse(text);
+      assert.strictEqual(envelope.status, 200);
+      assert.strictEqual(envelope.body.postcode, '2000');
     } finally {
       await client.close();
       transport.close();
@@ -213,7 +316,7 @@ describe('dynamic tool registration', () => {
     }
   });
 
-  it('registers get-state detail tool', async () => {
+  it('search results include parsed _links array', async () => {
     const mockApi = await startMockApi();
 
     const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
@@ -231,18 +334,55 @@ describe('dynamic tool registration', () => {
     await client.connect(transport);
 
     try {
-      const { tools } = await client.listTools();
-      const toolNames = tools.map((t) => t.name);
-      assert.ok(toolNames.includes('get-state'), 'Should register get-state tool');
-
       const result = await client.callTool({
-        name: 'get-state',
-        arguments: { stateAbbreviation: 'NSW' },
+        name: 'search-addresses',
+        arguments: { q: 'test' },
       });
       const text = result.content.find((c) => c.type === 'text')?.text;
       assert.ok(text, 'Should return text content');
-      const data = JSON.parse(text);
-      assert.strictEqual(data.name, 'New South Wales');
+      const envelope = JSON.parse(text);
+      assert.ok(Array.isArray(envelope.headers.link), 'headers.link should be a parsed array');
+      assert.strictEqual(envelope.headers.link.length, 2, 'Should have 2 links');
+      const canonical = envelope.headers.link.find((l) => l.rel === 'canonical');
+      assert.ok(canonical, 'Should have canonical link');
+      assert.ok(canonical.uri, 'Canonical link should have uri');
+      assert.strictEqual(canonical.anchor, '#/0');
+      const next = envelope.headers.link.find((l) => l.rel === 'next');
+      assert.ok(next, 'Should have next link');
+    } finally {
+      await client.close();
+      transport.close();
+      mockApi.server.close();
+    }
+  });
+
+  it('get-state accepts url parameter and returns envelope', async () => {
+    const mockApi = await startMockApi();
+
+    const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
+    const transport = new StdioClientTransport({
+      command: 'node',
+      args: ['src/server.mjs'],
+      env: {
+        ...process.env,
+        RAPIDAPI_KEY: 'dummy',
+        ADDRESSR_API_URL: mockApi.url,
+        ADDRESSR_API_HOST: 'addressr.p.rapidapi.com',
+      },
+    });
+
+    await client.connect(transport);
+
+    try {
+      const result = await client.callTool({
+        name: 'get-state',
+        arguments: { url: `${mockApi.url}states/NSW` },
+      });
+      const text = result.content.find((c) => c.type === 'text')?.text;
+      assert.ok(text, 'Should return text content');
+      const envelope = JSON.parse(text);
+      assert.strictEqual(envelope.status, 200);
+      assert.strictEqual(envelope.body.name, 'New South Wales');
     } finally {
       await client.close();
       transport.close();

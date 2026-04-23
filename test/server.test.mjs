@@ -48,44 +48,48 @@ describe('addressr-mcp server', { skip: !hasKey() && 'RAPIDAPI_KEY not set' }, (
     const { tools } = await client.listTools();
     const names = tools.map((t) => t.name);
     console.log('Tools:', names);
-    assert.ok(names.includes('addresses'), `Expected 'addresses' tool`);
+    assert.ok(names.includes('search-addresses'), `Expected 'search-addresses' tool`);
     assert.ok(
-      names.includes('addressesaddressId'),
-      `Expected 'addressesaddressId' tool`,
+      names.includes('get-address'),
+      `Expected 'get-address' tool`,
     );
   });
 
   it('searches for addresses', async () => {
     const result = await client.callTool({
-      name: 'addresses',
+      name: 'search-addresses',
       arguments: { q: '1 george st sydney' },
     });
     const text = result.content.find((c) => c.type === 'text')?.text;
     assert.ok(text, 'Should have text content');
-    const data = JSON.parse(text);
-    const results = Array.isArray(data) ? data : [data];
+    const envelope = JSON.parse(text);
+    assert.ok(envelope.body, 'Should have body in envelope');
+    const results = Array.isArray(envelope.body) ? envelope.body : [envelope.body];
     assert.ok(results.length > 0, 'Should return results');
     assert.ok(results[0].sla || results[0].pid, 'Results should have address data');
   });
 
   it('retrieves address details', async () => {
-    // Search first to get a PID
+    // Search first to get a PID and canonical URL
     const searchResult = await client.callTool({
-      name: 'addresses',
+      name: 'search-addresses',
       arguments: { q: '1 george st sydney' },
     });
-    const searchData = JSON.parse(
+    const searchEnvelope = JSON.parse(
       searchResult.content.find((c) => c.type === 'text').text,
     );
-    const results = Array.isArray(searchData) ? searchData : [searchData];
+    const results = Array.isArray(searchEnvelope.body) ? searchEnvelope.body : [searchEnvelope.body];
     const pid = results[0]?.pid;
     assert.ok(pid, 'Need a PID from search results');
+    const url = `https://${API_HOST}/addresses/${encodeURIComponent(pid)}`;
 
     const detailResult = await client.callTool({
-      name: 'addressesaddressId',
-      arguments: { addressId: pid },
+      name: 'get-address',
+      arguments: { url },
     });
     const detailText = detailResult.content.find((c) => c.type === 'text')?.text;
     assert.ok(detailText, 'Should have detail content');
+    const detailEnvelope = JSON.parse(detailText);
+    assert.ok(detailEnvelope.body, 'Detail should have body in envelope');
   });
 });

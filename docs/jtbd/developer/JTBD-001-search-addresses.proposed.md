@@ -15,6 +15,7 @@ When I need to validate or autocomplete an Australian address, I want to search 
 ## Desired Outcomes
 - Receive relevant address suggestions from partial input
 - Results include Addressr ID for detail retrieval
+- Results include canonical link URLs (`_links`) for following to detail view
 - Search works for street, suburb, state, and postcode
 
 ## Persona Constraints

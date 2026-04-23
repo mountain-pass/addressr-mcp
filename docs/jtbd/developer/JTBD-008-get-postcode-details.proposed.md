@@ -10,10 +10,10 @@ screens:
 # JTBD-008: Get Postcode Details
 
 ## Job Statement
-When I have identified a postcode from search results, I want to retrieve its full details, so I can validate the postal area or find associated localities.
+When I have selected a postcode from search results, I want to retrieve its full details, so I can validate the postal area or find associated localities.
 
 ## Desired Outcomes
-- Retrieve postcode details by postcode value (obtained from search results)
+- Retrieve postcode details by following the canonical link URL from search results
 - Results include postcode and associated localities
 - Simple lookup from search result to detail view
 

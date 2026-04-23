@@ -15,6 +15,7 @@ When I need to reference Australian states or territories, I want to search stat
 ## Desired Outcomes
 - Receive all Australian states and territories
 - Results include state name and abbreviation
+- Results include canonical link URL (`_links`) for detail retrieval
 - Simple lookup for state validation
 
 ## Persona Constraints

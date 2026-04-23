@@ -15,7 +15,7 @@ When I have selected an address from search results, I want to retrieve the full
 ## Desired Outcomes
 - Retrieve structured address components (street, suburb, state, postcode, coordinates)
 - Consistent, canonical address format
-- Reliable lookup by Addressr ID
+- Follow canonical link URL obtained from search results
 
 ## Persona Constraints
 - Uses MCP client; no direct API integration

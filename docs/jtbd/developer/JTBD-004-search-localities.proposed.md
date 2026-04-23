@@ -15,7 +15,7 @@ When I need to find or validate an Australian suburb or locality name, I want to
 ## Desired Outcomes
 - Receive relevant locality suggestions from partial input
 - Results include locality name, state, and postcode
-- Results include a locality ID for detail retrieval
+- Results include locality ID and canonical link URL (`_links`) for detail retrieval
 
 ## Persona Constraints
 - Uses MCP client; no direct API integration
