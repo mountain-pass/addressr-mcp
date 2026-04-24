@@ -1,5 +1,41 @@
 # @mountainpass/addressr-mcp
 
+## 1.0.0
+
+### Major Changes
+
+- c6da43d: feat!: HATEOAS-native tool contracts (breaking change)
+
+  Detail tools now accept a canonical `url` parameter instead of a resource ID, and all tools return a `{status, headers, body}` envelope. The `headers.link` field is parsed into `[{uri, rel, anchor?, title?}]` so MCP consumers can follow canonical and pagination links directly.
+
+  Breaking changes:
+  - `get-address` parameter renamed from `addressId` to `url` — pass the full canonical URL, e.g. `https://addressr.p.rapidapi.com/addresses/GANSW710280564`.
+  - `get-locality` parameter renamed from `localityId` to `url`.
+  - `get-postcode` parameter renamed from `postcode` to `url`.
+  - `get-state` parameter renamed from `stateAbbreviation` to `url`.
+  - All tool responses are now `{status, headers, body}` envelopes. The raw upstream JSON is on `body`; callers that used to consume the response as the JSON object directly must now read `.body`.
+
+  Migration: after a `search-*` call, read a `rel=canonical` link from `headers.link` and pass its `uri` to the matching `get-*` tool.
+
+  Also in this release:
+  - `ADDRESSR_RAPIDAPI_KEY` is now the preferred environment variable name; `RAPIDAPI_KEY` continues to work as a fallback.
+  - New README "Key Safety" section covering safer alternatives to pasting the raw key into MCP client configs.
+
+  See ADR-003 for the architectural decision.
+
+### Minor Changes
+
+- d344a6a: feat: dynamic tool discovery from Addressr API root
+
+  The MCP server now dynamically discovers and registers tools based on the link relations advertised by the Addressr API root response. This exposes three new MCP tools:
+  - `search-localities` — search Australian suburbs/localities
+  - `search-postcodes` — search Australian postcodes
+  - `search-states` — search Australian states and territories
+
+  A static `REL_TO_TOOL` mapping maps known link relation URIs to tool definitions. The server fetches the API root at startup and registers a tool for each advertised relation. If the API root is unreachable, the server falls back to registering only `health` and `get-address`.
+
+  See ADR-002 for the architectural decision.
+
 ## 0.2.0
 
 ### Minor Changes
