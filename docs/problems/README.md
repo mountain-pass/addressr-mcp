@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-04-23 — P002 opened; P001 blocked by P002; transitive effort unchanged
+> Last reviewed: 2026-04-24 — P003 opened — server.test.mjs tests the wrong target and has drifted upstream
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -11,6 +11,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 |------|-----|-------|----------|--------|--------|
 | 6.0 | P001 | Unsupported Addressr API Endpoints | 12 | Open | M |
 | 6.0 | P002 | Addressr Link Relations Not Resolvable | 12 | Open | M |
+| 6.0 | P003 | server.test.mjs tests the wrong target and has drifted upstream | 12 | Open | M |
 
 ## Verification Queue
 
