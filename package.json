@@ -19,7 +19,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs",
+    "test": "npm run test:unit",
     "test:unit": "node --test test/dynamic-tools.test.mjs",
     "test:integration": "node --test test/server.test.mjs",
     "lint": "eslint .",
