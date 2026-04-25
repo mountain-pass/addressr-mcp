@@ -61,3 +61,4 @@ This is an **upstream issue** in the Addressr API service (https://github.com/mo
 - [Addressr API repository](https://github.com/mountain-pass/addressr)
 - P001 (Unsupported Addressr API Endpoints)
 - [RISK-POLICY.md](../RISK-POLICY.md)
+- **Upstream report pending** — external dependency identified; invoke /wr-itil:report-upstream when ready
