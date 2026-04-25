@@ -1,6 +1,6 @@
 # Problem 003: server.test.mjs tests the wrong target and has drifted upstream
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-04-24
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M
@@ -64,9 +64,18 @@ Implications:
 ### Investigation Tasks
 
 - [x] Decide between fix direction (a) or (b). → **(a)** chosen 2026-04-25.
-- [ ] Write the `StdioClientTransport`-based test that spawns `node src/server.mjs`, asserts on our kebab-case tool names (`search-addresses`, `get-address`, …) and the `{status, headers, body}` envelope shape; skip the suite when `RAPIDAPI_KEY` is absent.
-- [ ] Restore default `npm test` to run the integration suite once it's green (revert the narrowing from commit `7d35469`).
+- [x] Write the `StdioClientTransport`-based test that spawns `node src/server.mjs`, asserts on our kebab-case tool names (`search-addresses`, `get-address`, …) and the `{status, headers, body}` envelope shape; skip the suite when `RAPIDAPI_KEY` is absent.
+- [x] Restore default `npm test` to run the integration suite once it's green (revert the narrowing from commit `7d35469`).
 - [ ] (Out of scope, see Direction Decision) ~~Consider whether a `scripts/fetch-hosted-mcp-tool-names.mjs` check belongs in CI as early warning for future aggregator drift.~~
+
+## Fix Released
+
+Pending release — fix folded into the same commit as this Open → Verification Pending transition per ADR-022. Awaiting user verification once shipped.
+
+- `test/server.test.mjs` rewritten to spawn `node src/server.mjs` via `StdioClientTransport`, propagating `process.env` (which carries `RAPIDAPI_KEY` / `ADDRESSR_RAPIDAPI_KEY`) onto the child server. Assertions exercise our kebab-case tool surface (`search-addresses`, `get-address`, `search-localities`, `get-locality`, `search-postcodes`, `get-postcode`, `search-states`, `get-state`, `health`) and our `{status, headers, body}` envelope shape from `toEnvelope()` in `src/server.mjs`. The suite skips cleanly via `node:test`'s `{ skip: !hasKey() && 'RAPIDAPI_KEY not set' }` when neither key is set.
+- `package.json` `test` script restored from `npm run test:unit` to `npm run test:unit && npm run test:integration` so `npm test` covers both unit (mock-backed) and integration (live-backed) layers. Architect review (2026-04-25) recommended composing both rather than swapping to integration alone, so unkeyed contributors and CI without secrets still get unit-suite signal while keyed runs add the live contract.
+
+Local exercise (this session): `npm test` green twice — once without any `RAPIDAPI_KEY` (unit pass + integration suite skipped cleanly) and once with `ADDRESSR_RAPIDAPI_KEY` sourced from `.env` (unit pass + 4 integration subtests pass against live RapidAPI).
 
 ## Dependencies
 

@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-04-25 — P001 verification pending — released in v1.0.0
+> Last reviewed: 2026-04-25 — P003 verification pending — server.test.mjs rewritten to exercise the local MCP server end-to-end + `npm test` restored to compose unit + integration
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -10,7 +10,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | WSJF | ID | Title | Severity | Status | Effort |
 |------|-----|-------|----------|--------|--------|
 | 6.0 | P002 | Addressr Link Relations Not Resolvable | 12 | Open | M |
-| 6.0 | P003 | server.test.mjs tests the wrong target and has drifted upstream | 12 | Open | M |
 
 ## Verification Queue
 
@@ -18,7 +17,8 @@ Fix released, awaiting user verification (driven off `docs/problems/*.verifying.
 
 | ID | Title | Released | Fix summary | Likely verified? |
 |----|-------|----------|-------------|------------------|
-| P001 | Unsupported Addressr API Endpoints | v1.0.0 (commit d344a6a) | Dynamic tool discovery via `REL_TO_TOOL` mapping in `src/server.mjs` registers tools for all link relations advertised by the Addressr API root | no (0 days) |
+| P001 | Unsupported Addressr API Endpoints | v1.0.0 (commit d344a6a) | Dynamic tool discovery via `REL_TO_TOOL` mapping in `src/server.mjs` registers tools for all link relations advertised by the Addressr API root | no (1 day) |
+| P003 | server.test.mjs tests the wrong target and has drifted upstream | pending (folded into fix commit) | `test/server.test.mjs` rewritten to spawn `node src/server.mjs` via `StdioClientTransport` and assert on kebab-case tool names + `{status, headers, body}` envelope; `npm test` restored to compose unit + integration | no (0 days) |
 
 ## Parked
 

@@ -1,95 +1,138 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-const MCP_URL = 'https://mcp.rapidapi.com';
-const API_HOST = 'addressr.p.rapidapi.com';
+// Load .env if present so RAPIDAPI_KEY can be hydrated locally per ADR-005
+try {
+  await import('dotenv/config');
+} catch {
+  /* dotenv optional */
+}
 
 function hasKey() {
-  return Boolean(process.env.RAPIDAPI_KEY);
+  return Boolean(
+    process.env.RAPIDAPI_KEY || process.env.ADDRESSR_RAPIDAPI_KEY,
+  );
 }
 
 async function createTestClient() {
-  const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
-  const transport = new StreamableHTTPClientTransport(new URL(MCP_URL), {
-    requestInit: {
-      headers: {
-        'x-api-key': process.env.RAPIDAPI_KEY,
-        'x-api-host': API_HOST,
-      },
+  const client = new Client({
+    name: 'addressr-mcp-test',
+    version: '1.0.0',
+  });
+  const transport = new StdioClientTransport({
+    command: 'node',
+    args: ['src/server.mjs'],
+    env: {
+      ...process.env,
     },
   });
   await client.connect(transport);
-  return client;
+  return { client, transport };
 }
 
-// Load .env if present
-try {
-  await import('dotenv/config');
-} catch { /* dotenv optional */ }
+describe(
+  'addressr-mcp local server (live RapidAPI)',
+  { skip: !hasKey() && 'RAPIDAPI_KEY not set' },
+  () => {
+    let client;
+    let transport;
 
-describe('addressr-mcp server', { skip: !hasKey() && 'RAPIDAPI_KEY not set' }, () => {
-  let client;
-
-  before(async () => {
-    client = await createTestClient();
-  });
-
-  after(async () => {
-    if (client) await client.close();
-  });
-
-  it('connects successfully', () => {
-    assert.ok(client);
-  });
-
-  it('lists addressr tools', async () => {
-    const { tools } = await client.listTools();
-    const names = tools.map((t) => t.name);
-    console.log('Tools:', names);
-    assert.ok(names.includes('search-addresses'), `Expected 'search-addresses' tool`);
-    assert.ok(
-      names.includes('get-address'),
-      `Expected 'get-address' tool`,
-    );
-  });
-
-  it('searches for addresses', async () => {
-    const result = await client.callTool({
-      name: 'search-addresses',
-      arguments: { q: '1 george st sydney' },
+    before(async () => {
+      ({ client, transport } = await createTestClient());
     });
-    const text = result.content.find((c) => c.type === 'text')?.text;
-    assert.ok(text, 'Should have text content');
-    const envelope = JSON.parse(text);
-    assert.ok(envelope.body, 'Should have body in envelope');
-    const results = Array.isArray(envelope.body) ? envelope.body : [envelope.body];
-    assert.ok(results.length > 0, 'Should return results');
-    assert.ok(results[0].sla || results[0].pid, 'Results should have address data');
-  });
 
-  it('retrieves address details', async () => {
-    // Search first to get a PID and canonical URL
-    const searchResult = await client.callTool({
-      name: 'search-addresses',
-      arguments: { q: '1 george st sydney' },
+    after(async () => {
+      if (client) await client.close();
+      if (transport) transport.close();
     });
-    const searchEnvelope = JSON.parse(
-      searchResult.content.find((c) => c.type === 'text').text,
-    );
-    const results = Array.isArray(searchEnvelope.body) ? searchEnvelope.body : [searchEnvelope.body];
-    const pid = results[0]?.pid;
-    assert.ok(pid, 'Need a PID from search results');
-    const url = `https://${API_HOST}/addresses/${encodeURIComponent(pid)}`;
 
-    const detailResult = await client.callTool({
-      name: 'get-address',
-      arguments: { url },
+    it('lists kebab-case addressr tools', async () => {
+      const { tools } = await client.listTools();
+      const names = tools.map((t) => t.name);
+
+      const expected = [
+        'search-addresses',
+        'get-address',
+        'search-localities',
+        'get-locality',
+        'search-postcodes',
+        'get-postcode',
+        'search-states',
+        'get-state',
+        'health',
+      ];
+      for (const name of expected) {
+        assert.ok(
+          names.includes(name),
+          `Expected tool '${name}' in ${JSON.stringify(names)}`,
+        );
+      }
     });
-    const detailText = detailResult.content.find((c) => c.type === 'text')?.text;
-    assert.ok(detailText, 'Should have detail content');
-    const detailEnvelope = JSON.parse(detailText);
-    assert.ok(detailEnvelope.body, 'Detail should have body in envelope');
-  });
-});
+
+    it('searches for addresses and returns {status, headers, body} envelope', async () => {
+      const result = await client.callTool({
+        name: 'search-addresses',
+        arguments: { q: '1 george st sydney' },
+      });
+      const text = result.content.find((c) => c.type === 'text')?.text;
+      assert.ok(text, 'Should have text content');
+
+      const envelope = JSON.parse(text);
+      assert.strictEqual(typeof envelope.status, 'number', 'envelope.status should be a number');
+      assert.strictEqual(envelope.status, 200, 'expected 200 OK from live search');
+      assert.ok(envelope.headers && typeof envelope.headers === 'object', 'envelope.headers should be an object');
+      assert.ok(envelope.body, 'envelope.body should be present');
+
+      const results = Array.isArray(envelope.body) ? envelope.body : [envelope.body];
+      assert.ok(results.length > 0, 'Should return at least one result');
+      assert.ok(
+        results[0].sla || results[0].pid,
+        'Results should carry standard address fields (sla or pid)',
+      );
+    });
+
+    it('retrieves address details via get-address with a canonical URL', async () => {
+      const searchResult = await client.callTool({
+        name: 'search-addresses',
+        arguments: { q: '1 george st sydney' },
+      });
+      const searchEnvelope = JSON.parse(
+        searchResult.content.find((c) => c.type === 'text').text,
+      );
+      const results = Array.isArray(searchEnvelope.body)
+        ? searchEnvelope.body
+        : [searchEnvelope.body];
+      const pid = results[0]?.pid;
+      assert.ok(pid, 'Need a PID from search results');
+
+      const apiHost = process.env.RAPIDAPI_HOST || 'addressr.p.rapidapi.com';
+      const url = `https://${apiHost}/addresses/${encodeURIComponent(pid)}`;
+
+      const detailResult = await client.callTool({
+        name: 'get-address',
+        arguments: { url },
+      });
+      const detailText = detailResult.content.find((c) => c.type === 'text')?.text;
+      assert.ok(detailText, 'Should have detail content');
+
+      const detailEnvelope = JSON.parse(detailText);
+      assert.strictEqual(detailEnvelope.status, 200, 'expected 200 OK from get-address');
+      assert.ok(detailEnvelope.headers, 'detail envelope should have headers');
+      assert.ok(detailEnvelope.body, 'detail envelope should have body');
+    });
+
+    it('reports health via the health tool', async () => {
+      const result = await client.callTool({
+        name: 'health',
+        arguments: {},
+      });
+      const text = result.content.find((c) => c.type === 'text')?.text;
+      assert.ok(text, 'Should have text content');
+      const envelope = JSON.parse(text);
+      assert.strictEqual(typeof envelope.status, 'number', 'health envelope.status should be a number');
+      assert.ok(envelope.body, 'health envelope.body should be present');
+    });
+  },
+);
