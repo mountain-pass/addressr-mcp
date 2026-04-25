@@ -51,13 +51,22 @@ b. **Keep testing the RapidAPI aggregator, decouple assertions** — update asse
 
 Option (a) is the structurally right choice for a package named `server.test.mjs`. Option (b) is lower effort and preserves the upstream-health smoke-test signal.
 
+### Direction Decision
+
+**Chosen: (a)** — rewrite the test to exercise our local MCP server end-to-end via `StdioClientTransport` spawning `node src/server.mjs`. Decision recorded by user 2026-04-25.
+
+Rationale: a file named `server.test.mjs` should test our server, not an upstream aggregator the package has no relationship with. The recurring drift maintenance under (b) is not worth preserving when the test name actively misleads readers about what is being exercised.
+
+Implications:
+- The hosted-aggregator drift signal is dropped. The optional `scripts/fetch-hosted-mcp-tool-names.mjs` CI probe (an early-warning probe for hosted-aggregator drift) is therefore **out of scope** under (a) — drift in the hosted aggregator no longer affects this package's tests.
+- The test will spawn a child `node src/server.mjs` process per test run with `RAPIDAPI_KEY` injected on the child env. Tests skip cleanly when `RAPIDAPI_KEY` is absent.
+
 ### Investigation Tasks
 
-- [ ] Decide between fix direction (a) or (b).
-- [ ] If (a): write the StdioClientTransport-based test with live-key skip guard.
-- [ ] If (b): update tool-name and response-shape assertions; add a note at the top of the file clarifying what it actually tests.
-- [ ] Restore default `npm test` to run the integration suite once it's green.
-- [ ] Consider whether a `scripts/fetch-hosted-mcp-tool-names.mjs` check belongs in CI as early warning for future aggregator drift.
+- [x] Decide between fix direction (a) or (b). → **(a)** chosen 2026-04-25.
+- [ ] Write the `StdioClientTransport`-based test that spawns `node src/server.mjs`, asserts on our kebab-case tool names (`search-addresses`, `get-address`, …) and the `{status, headers, body}` envelope shape; skip the suite when `RAPIDAPI_KEY` is absent.
+- [ ] Restore default `npm test` to run the integration suite once it's green (revert the narrowing from commit `7d35469`).
+- [ ] (Out of scope, see Direction Decision) ~~Consider whether a `scripts/fetch-hosted-mcp-tool-names.mjs` check belongs in CI as early warning for future aggregator drift.~~
 
 ## Dependencies
 
