@@ -1,5 +1,11 @@
 # @mountainpass/addressr-mcp
 
+## 1.0.2
+
+### Patch Changes
+
+- 1e93639: Upgrade `eslint` and `@eslint/js` from v9 → v10 (major). Existing flat-config in `eslint.config.js` (uses `js.configs.recommended` + `eslint-config-prettier`) is fully compatible with no changes; lint and tests pass clean. Dev-dep only — no impact on the published package or runtime behaviour.
+
 ## 1.0.1
 
 ### Patch Changes
