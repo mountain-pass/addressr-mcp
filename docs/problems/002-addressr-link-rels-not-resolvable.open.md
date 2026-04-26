@@ -61,4 +61,12 @@ This is an **upstream issue** in the Addressr API service (https://github.com/mo
 - [Addressr API repository](https://github.com/mountain-pass/addressr)
 - P001 (Unsupported Addressr API Endpoints)
 - [RISK-POLICY.md](../RISK-POLICY.md)
-- **Upstream report pending** — external dependency identified; invoke /wr-itil:report-upstream when ready
+- **Reported upstream**: https://github.com/mountain-pass/addressr/issues/456 (2026-04-26)
+
+## Reported Upstream
+
+- **URL**: https://github.com/mountain-pass/addressr/issues/456
+- **Reported**: 2026-04-26
+- **Template used**: structured default (problem-shaped per ADR-033 — upstream has no `.github/ISSUE_TEMPLATE/`)
+- **Disclosure path**: public issue
+- **Cross-reference confirmed**: yes (issue body's `## Cross-reference` section references this local ticket)
