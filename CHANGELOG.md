@@ -1,5 +1,12 @@
 # @mountainpass/addressr-mcp
 
+## 1.0.1
+
+### Patch Changes
+
+- 0da3803: Fix integration test target: `test/server.test.mjs` now exercises the local MCP server end-to-end via `StdioClientTransport` (spawning `node src/server.mjs`) instead of the upstream RapidAPI-hosted aggregator. Assertions cover our kebab-case tool surface (`search-addresses`, `get-address`, `search-localities`, `get-locality`, `search-postcodes`, `get-postcode`, `search-states`, `get-state`, `health`) and our `{status, headers, body}` envelope shape. The suite skips cleanly when neither `RAPIDAPI_KEY` nor `ADDRESSR_RAPIDAPI_KEY` is set. Default `npm test` is restored to run unit + integration (`npm run test:unit && npm run test:integration`); keyless runs (CI without secrets, contributors without 1Password) still get full unit-suite signal, and keyed runs add live-API verification of the proxy.
+- 06202e9: Update dev dependencies within existing semver ranges via `dry-aged-deps`: `@changesets/cli` 2.30.0 → 2.31.0, `globals` 17.4.0 → 17.5.0, `prettier` 3.8.1 → 3.8.3. No runtime impact (dev tooling only); lint and tests pass.
+
 ## 1.0.0
 
 ### Major Changes
