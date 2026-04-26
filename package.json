@@ -33,15 +33,15 @@
     "zod": "^4.3.0"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.29.7",
-    "@eslint/js": "^9.39.4",
-    "eslint": "^9.39.4",
+    "@changesets/cli": "2.31.0",
+    "@eslint/js": "9.39.4",
+    "eslint": "9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "globals": "^17.4.0",
+    "globals": "17.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.3",
-    "prettier": "^3.8.1"
+    "prettier": "3.8.3"
   },
   "lint-staged": {
     "*.{js,mjs}": "eslint --fix",
