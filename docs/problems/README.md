@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-13. P004 closed on user verification (Verification Pending to Closed). User confirmed the new `## How It Works` section answers the adopter onboarding question, with the em-dash cleanup landing in the same closure commit.
+> Last reviewed: 2026-05-14. Inline reconcile during `/wr-retrospective:run-retro`: P005, P006, P007, P008 captured (external-comms marker, capture-problem downstream halt, CI cryptic JSON error, em-dash detection). All four carry deferred placeholders awaiting next `/wr-itil:review-problems` re-rating.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -10,6 +10,10 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | WSJF | ID | Title | Severity | Status | Effort | Reported |
 |------|-----|-------|----------|--------|--------|----------|
 | 6.0 | P002 | Addressr Link Relations Not Resolvable | 12 | Open | M | 2026-04-23 |
+| deferred | P005 | external-comms marker fails on empty session_id | deferred | Open | M | 2026-05-14 |
+| deferred | P006 | capture-problem deferred refresh causes downstream halt | deferred | Open | M | 2026-05-14 |
+| deferred | P007 | CI integration test cryptic JSON parse on upstream error | deferred | Open | M | 2026-05-14 |
+| deferred | P008 | no automated em-dash detection | deferred | Open | M | 2026-05-14 |
 
 ## Verification Queue
 
