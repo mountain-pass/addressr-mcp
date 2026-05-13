@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-05-13 — P004 transitioned Open → Known Error (root cause + fix strategy documented for the missing `## How It Works` README section; WSJF 8.0 → 16.0 via Known-Error multiplier; fix to land in subsequent commit).
+> Last reviewed: 2026-05-13 — P004 fix shipped (Known Error → Verification Pending): added `## How It Works` section to README naming the proxy model + on-demand-fetch contract; architect + JTBD reviewed; awaiting first-time-adopter re-read.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -9,14 +9,15 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 
 | WSJF | ID | Title | Severity | Status | Effort | Reported |
 |------|-----|-------|----------|--------|--------|----------|
-| 16.0 | P004 | MCP context model not surfaced in user docs | 8 | Known Error | S | 2026-05-13 |
 | 6.0 | P002 | Addressr Link Relations Not Resolvable | 12 | Open | M | 2026-04-23 |
 
 ## Verification Queue
 
 Fix released, awaiting user verification (driven off `docs/problems/*.verifying.md` via glob per ADR-022). Sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC). <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> `Likely verified?` column marks tickets ≥14 days old (P048 Candidate 4 default).
 
-_Queue empty._
+| ID | Title | Released | Fix summary | Likely verified? |
+|----|-------|----------|-------------|------------------|
+| P004 | MCP context model not surfaced in user docs | 2026-05-13 (this commit) | Added `## How It Works` section to README naming the proxy model + on-demand-fetch contract; architect + JTBD reviewed | no (0 days) |
 
 ## Parked
 

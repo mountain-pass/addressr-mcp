@@ -1,6 +1,6 @@
 # Problem 004: MCP context model not surfaced in user docs
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-13
 **Priority**: 8 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
 **Effort**: S
@@ -60,8 +60,23 @@ Keep it short — one screenful, ~30-50 lines, no code. Link out to the existing
 - [x] Investigate root cause (2026-05-13)
 - [x] Document workaround (2026-05-13 — none for adopters)
 - [x] Define fix strategy (2026-05-13 — add `## How It Works` section)
-- [ ] Implement fix in README.md
+- [x] Implement fix in README.md (2026-05-13 — folded into this commit per ADR-022)
 - [ ] Verify by re-reading the README as a first-time adopter
+
+## Fix Released
+
+Released 2026-05-13 — added `## How It Works` section to `README.md` between the lead paragraph and `## Quick Start`. The section names:
+
+- The proxy model in one paragraph ("thin proxy; G-NAF dataset stays on the Addressr API").
+- What enters context: tool schemas at session start (few hundred tokens) + matched results per call.
+- One concrete `search-addresses` → `get-address` flow showing the per-step context footprint.
+- Outbound links to existing `Response Format` and `HATEOAS Workflow` sections for mechanics.
+
+Architect review (wr-architect:agent) — PASS WITH NOTES; verified against ADR-001 (thin proxy), ADR-002 (dynamic discovery), ADR-003 (HATEOAS-native), ADR-005 (live API integration testing). No new ADR required — pure prose documentation of existing decisions. Editorial nits incorporated (softened "13M-row" to "roughly 13 million" with provenance link, replaced ellipsis with explicit tool taxonomy `search-*`/`get-*`/`health`, renamed "Context cost" to "Context footprint").
+
+JTBD review (wr-jtbd:agent) — PASS WITH NOTES; serves JTBD-001 and JTBD-002 by side-effect. Non-blocking follow-up: the adopter-evaluation job ("decide whether to adopt this MCP without asking the maintainer how it handles 13M rows") is not yet a documented job. Recommend capturing as a new `JTBD-010 (Evaluate Addressr MCP for Adoption)` under the developer persona.
+
+Awaiting user verification: re-read the README from the top as a first-time adopter and confirm the `## How It Works` section answers "how does this stay cheap?" without needing to inspect `src/server.mjs`.
 
 ## Dependencies
 

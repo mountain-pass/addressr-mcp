@@ -4,6 +4,32 @@ MCP (Model Context Protocol) server for Australian address search and validation
 
 Search, validate, and retrieve detailed Australian address data from the Geocoded National Address File (G-NAF) — directly from your AI assistant.
 
+## How It Works
+
+`@mountainpass/addressr-mcp` is a thin proxy. The G-NAF dataset (roughly 13 million Australian addresses — see [Data Source](#data-source) below) stays on the Addressr API — never in the MCP server, never in your AI client's context window.
+
+### What enters context
+
+When your AI client connects:
+
+1. **At session start**: the tool schemas (the `search-*`, `get-*`, and `health` tools) load once — a few hundred tokens describing what each tool does.
+2. **Per tool call**: only the matched results come back. A search returns up to 8 candidates with their canonical URLs; a get fetches one record.
+
+The full dataset never enters context. Each call is scoped to the query.
+
+### Example flow
+
+Ask: *"What's the address ID for 1 George Street, Sydney?"*
+
+1. The AI client picks `search-addresses` and calls it with `q="1 george st sydney"`.
+2. The MCP server forwards the query to the Addressr API. The API returns up to 8 ranked matches.
+3. The AI client picks the best match and calls `get-address` with that match's canonical URL.
+4. The MCP server returns the full record — geocoding, structured components, confidence score.
+
+Context footprint across the whole flow: tool schemas + up to 8 search results + 1 full address record. The dataset stays on the server.
+
+For the response shape and HATEOAS navigation pattern, see [Response Format](#response-format) and [HATEOAS Workflow](#hateoas-workflow) below.
+
 ## Quick Start
 
 ### 1. Get an API Key
