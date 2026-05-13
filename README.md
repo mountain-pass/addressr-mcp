@@ -2,17 +2,17 @@
 
 MCP (Model Context Protocol) server for Australian address search and validation powered by [Addressr](https://addressr.io).
 
-Search, validate, and retrieve detailed Australian address data from the Geocoded National Address File (G-NAF) — directly from your AI assistant.
+Search, validate, and retrieve detailed Australian address data from the Geocoded National Address File (G-NAF), directly from your AI assistant.
 
 ## How It Works
 
-`@mountainpass/addressr-mcp` is a thin proxy. The G-NAF dataset (roughly 13 million Australian addresses — see [Data Source](#data-source) below) stays on the Addressr API — never in the MCP server, never in your AI client's context window.
+`@mountainpass/addressr-mcp` is a thin proxy. The G-NAF dataset (roughly 13 million Australian addresses, see [Data Source](#data-source) below) stays on the Addressr API. It never enters the MCP server or your AI client's context window.
 
 ### What enters context
 
 When your AI client connects:
 
-1. **At session start**: the tool schemas (the `search-*`, `get-*`, and `health` tools) load once — a few hundred tokens describing what each tool does.
+1. **At session start**: the tool schemas (the `search-*`, `get-*`, and `health` tools) load once, just a few hundred tokens describing what each tool does.
 2. **Per tool call**: only the matched results come back. A search returns up to 8 candidates with their canonical URLs; a get fetches one record.
 
 The full dataset never enters context. Each call is scoped to the query.
@@ -24,7 +24,7 @@ Ask: *"What's the address ID for 1 George Street, Sydney?"*
 1. The AI client picks `search-addresses` and calls it with `q="1 george st sydney"`.
 2. The MCP server forwards the query to the Addressr API. The API returns up to 8 ranked matches.
 3. The AI client picks the best match and calls `get-address` with that match's canonical URL.
-4. The MCP server returns the full record — geocoding, structured components, confidence score.
+4. The MCP server returns the full record (geocoding, structured components, confidence score).
 
 Context footprint across the whole flow: tool schemas + up to 8 search results + 1 full address record. The dataset stays on the server.
 
@@ -107,7 +107,7 @@ Add to `.vscode/mcp.json` (local config, never committed):
 
 The setup snippets above paste your RapidAPI key in plaintext. That is the simplest path, but it has real leak vectors:
 
-- **Claude Desktop config** (`~/Library/Application Support/Claude/claude_desktop_config.json`) is user-readable and is typically swept up by OS backups — Time Machine, or iCloud Drive if your Library is synced.
+- **Claude Desktop config** (`~/Library/Application Support/Claude/claude_desktop_config.json`) is user-readable and is typically swept up by OS backups (Time Machine, or iCloud Drive if your Library is synced).
 - **`.cursor/mcp.json`** and **`.vscode/mcp.json`** sit inside your project directory and are easy to commit by accident. If you keep the key there, add the file to `.gitignore`.
 - **`export ADDRESSR_RAPIDAPI_KEY=...`** is written to `~/.zsh_history` or `~/.bash_history` and survives there until pruned.
 
@@ -212,32 +212,32 @@ Search tools return an envelope with `status`, `headers`, and `body`. The `heade
 Search Australian addresses by street, suburb, or postcode. Returns up to 8 results per page with standard address format, relevance score, and property ID (PID).
 
 **Parameters:**
-- `q` (required) — Search query, e.g. `"1 george st sydney"`, `"2000"`, `"pyrmont nsw"`
-- `page` (optional) — Page number for paginated results
+- `q` (required): Search query, e.g. `"1 george st sydney"`, `"2000"`, `"pyrmont nsw"`
+- `page` (optional): Page number for paginated results
 
 #### search-postcodes
 
 Search Australian postcodes by partial text or number. Returns matching postcodes and their associated localities.
 
 **Parameters:**
-- `q` (required) — Search query, e.g. `"2000"`, `"200"`, `"sydney"`
-- `page` (optional) — Page number for paginated results
+- `q` (required): Search query, e.g. `"2000"`, `"200"`, `"sydney"`
+- `page` (optional): Page number for paginated results
 
 #### search-localities
 
 Search Australian localities (suburbs) by name. Returns matching localities with state and postcode.
 
 **Parameters:**
-- `q` (required) — Search query, e.g. `"sydney"`, `"melbourne"`, `"pyrmont"`
-- `page` (optional) — Page number for paginated results
+- `q` (required): Search query, e.g. `"sydney"`, `"melbourne"`, `"pyrmont"`
+- `page` (optional): Page number for paginated results
 
 #### search-states
 
 Search Australian states and territories by name or abbreviation. Returns all matching states.
 
 **Parameters:**
-- `q` (required) — Search query, e.g. `"NSW"`, `"New South Wales"`, `"Victoria"`
-- `page` (optional) — Page number for paginated results
+- `q` (required): Search query, e.g. `"NSW"`, `"New South Wales"`, `"Victoria"`
+- `page` (optional): Page number for paginated results
 
 ### Detail Tools
 
@@ -248,28 +248,28 @@ Detail tools accept a canonical `url` from search results and return the full re
 Get full address details by URL. Follow the canonical link from search results to retrieve geocoding (lat/long), structured components (street, suburb, state, postcode, unit/flat), and confidence score.
 
 **Parameters:**
-- `url` (required) — Canonical URL from search-addresses results, e.g. `"https://addressr.p.rapidapi.com/addresses/GANSW710280564"`
+- `url` (required): Canonical URL from search-addresses results, e.g. `"https://addressr.p.rapidapi.com/addresses/GANSW710280564"`
 
 #### get-locality
 
 Get full locality details by URL. Follow the canonical link from search results to retrieve structured locality data including name, state, postcode, and class.
 
 **Parameters:**
-- `url` (required) — Canonical URL from search-localities results, e.g. `"https://addressr.p.rapidapi.com/localities/GAUTH-12345"`
+- `url` (required): Canonical URL from search-localities results, e.g. `"https://addressr.p.rapidapi.com/localities/GAUTH-12345"`
 
 #### get-postcode
 
 Get full postcode details by URL. Follow the canonical link from search results to retrieve the postcode and associated localities.
 
 **Parameters:**
-- `url` (required) — Canonical URL from search-postcodes results, e.g. `"https://addressr.p.rapidapi.com/postcodes/2000"`
+- `url` (required): Canonical URL from search-postcodes results, e.g. `"https://addressr.p.rapidapi.com/postcodes/2000"`
 
 #### get-state
 
 Get full state details by URL. Follow the canonical link from search results to retrieve state name and abbreviation.
 
 **Parameters:**
-- `url` (required) — Canonical URL from search-states results, e.g. `"https://addressr.p.rapidapi.com/states/NSW"`
+- `url` (required): Canonical URL from search-states results, e.g. `"https://addressr.p.rapidapi.com/states/NSW"`
 
 ### Utility Tools
 
