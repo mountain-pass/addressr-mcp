@@ -2,8 +2,9 @@
 
 **Status**: Open
 **Reported**: 2026-05-13
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 8 (Medium) — Impact: Minor (2) x Likelihood: Likely (4)
+**Effort**: S
+**WSJF**: 8.0
 **Type**: user-business
 
 ## Description
@@ -33,7 +34,7 @@ Adopters end up asking the maintainer directly (e.g. via inbound enquiries) inst
 
 ### Investigation Tasks
 
-- [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
+- [x] Re-rate Priority and Effort at next /wr-itil:review-problems (2026-05-13: Impact 2 × Likelihood 4 = 8 Medium; Effort S; WSJF 8.0)
 - [ ] Investigate root cause
 - [ ] Create reproduction test
 

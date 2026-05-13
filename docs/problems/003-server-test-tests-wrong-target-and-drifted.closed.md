@@ -1,6 +1,7 @@
 # Problem 003: server.test.mjs tests the wrong target and has drifted upstream
 
-**Status**: Verification Pending
+**Status**: Closed
+**Closed**: 2026-05-13
 **Reported**: 2026-04-24
 **Priority**: 12 (High) — Impact: Moderate (3) x Likelihood: Likely (4)
 **Effort**: M
@@ -70,12 +71,23 @@ Implications:
 
 ## Fix Released
 
-Pending release — fix folded into the same commit as this Open → Verification Pending transition per ADR-022. Awaiting user verification once shipped.
+Released 2026-04-25 in commit `0da3803` (`fix(test): rewrite server.test.mjs to exercise local MCP server end-to-end (closes P003)`).
 
 - `test/server.test.mjs` rewritten to spawn `node src/server.mjs` via `StdioClientTransport`, propagating `process.env` (which carries `RAPIDAPI_KEY` / `ADDRESSR_RAPIDAPI_KEY`) onto the child server. Assertions exercise our kebab-case tool surface (`search-addresses`, `get-address`, `search-localities`, `get-locality`, `search-postcodes`, `get-postcode`, `search-states`, `get-state`, `health`) and our `{status, headers, body}` envelope shape from `toEnvelope()` in `src/server.mjs`. The suite skips cleanly via `node:test`'s `{ skip: !hasKey() && 'RAPIDAPI_KEY not set' }` when neither key is set.
 - `package.json` `test` script restored from `npm run test:unit` to `npm run test:unit && npm run test:integration` so `npm test` covers both unit (mock-backed) and integration (live-backed) layers. Architect review (2026-04-25) recommended composing both rather than swapping to integration alone, so unkeyed contributors and CI without secrets still get unit-suite signal while keyed runs add the live contract.
 
-Local exercise (this session): `npm test` green twice — once without any `RAPIDAPI_KEY` (unit pass + integration suite skipped cleanly) and once with `ADDRESSR_RAPIDAPI_KEY` sourced from `.env` (unit pass + 4 integration subtests pass against live RapidAPI).
+Local exercise (release session): `npm test` green twice — once without any `RAPIDAPI_KEY` (unit pass + integration suite skipped cleanly) and once with `ADDRESSR_RAPIDAPI_KEY` sourced from `.env` (unit pass + 4 integration subtests pass against live RapidAPI).
+
+## Verification
+
+Closed 2026-05-13 on in-session evidence via the live MCP integration in this Claude Code session:
+
+- `mcp__addressr__health` invoked — confirmed kebab-case tool name registers on the local server (vs the old `healthCheck` camelCase from the hosted aggregator).
+- `mcp__addressr__search-addresses` invoked — confirmed kebab-case `search-addresses` registers.
+- Both responses returned the canonical `{status, headers, body}` envelope shape from `toEnvelope()` in `src/server.mjs`, matching the test's envelope-shape assertions.
+- Upstream RapidAPI status codes (403 / 429 in this session due to subscription state at the time, unrelated to P003) round-tripped faithfully — confirming the proxy contract works.
+
+Behavioural target of the fix met: the local MCP server is exercised end-to-end through a real MCP client (Claude Code) using the same kebab-case names + envelope shape the rewritten test asserts.
 
 ## Dependencies
 
