@@ -1,9 +1,11 @@
 # Problem 008: no automated em-dash detection
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-14
-**Priority**: 3 (Medium) - Impact: 3 x Likelihood: 1 (deferred - re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred - re-rate at next /wr-itil:review-problems)
+**Priority**: 8 (Medium) - Impact: 2 x Likelihood: 4 (re-rated 2026-06-02: fires per non-trivial doc edit; LLM-authoring tell)
+**Origin**: internal
+**Effort**: S (re-rated 2026-06-02: M -> S; pre-commit hook + `grep -rP '\x{2014}'` is a small surface per body)
+**WSJF**: 16.0 (auto-transition Open -> Known Error; Effort M -> S)
 **Type**: technical
 
 ## Description

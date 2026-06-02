@@ -1,10 +1,11 @@
 # Problem 002: Addressr Link Relations Not Resolvable
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-04-23
-**Priority**: 12 (Medium-High) — Impact: Moderate (3) x Likelihood: Likely (4)
+**Priority**: 9 (Medium) - Impact: Moderate (3) x Likelihood: Possible (3)
+**Origin**: internal
 **Effort**: M
-**WSJF**: 6.0
+**WSJF**: 9.0 (auto-transition Open -> Known Error; Likelihood 4 -> 3 after local workaround shipped, upstream reported addressr#456)
 
 ## Description
 

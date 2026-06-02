@@ -2,9 +2,10 @@
 
 **Status**: Open
 **Reported**: 2026-06-02
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 9 (Medium) - Impact: 3 x Likelihood: 3 (re-rated 2026-06-02: missing-capability gap; details unreachable as MCP tools, fall-back to direct API works)
 **Origin**: internal
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Effort**: M (re-rated 2026-06-02: ~3 new tool registrations via REL_TO_TOOL extension per P001 pattern)
+**WSJF**: 4.5 (stays Open: no confirmed root cause section yet; investigation tasks pending)
 **Type**: user-business
 **JTBD**: JTBD-004, JTBD-005, JTBD-006, JTBD-007, JTBD-008, JTBD-009
 **Persona**: developer

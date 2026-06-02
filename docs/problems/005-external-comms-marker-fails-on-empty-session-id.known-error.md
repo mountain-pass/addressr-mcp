@@ -1,9 +1,11 @@
 # Problem 005: external-comms marker fails on empty session_id
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-14
-**Priority**: 3 (Medium) - Impact: 3 x Likelihood: 1 (deferred - re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred - re-rate at next /wr-itil:review-problems)
+**Priority**: 10 (High) - Impact: 2 x Likelihood: 5 (re-rated at 2026-06-02 review: previously observed failure mode, fired again this session during P009 capture)
+**Origin**: internal
+**Effort**: M
+**WSJF**: 10.0 (auto-transition Open -> Known Error; Likelihood 5 per "previously observed failure mode")
 **Type**: technical
 
 ## Description

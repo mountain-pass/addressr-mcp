@@ -1,9 +1,11 @@
 # Problem 007: CI integration test cryptic JSON parse on upstream error
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-14
-**Priority**: 3 (Medium) - Impact: 3 x Likelihood: 1 (deferred - re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred - re-rate at next /wr-itil:review-problems)
+**Priority**: 9 (Medium) - Impact: 3 x Likelihood: 3 (re-rated 2026-06-02: observed at least twice; tied to upstream API state changes)
+**Origin**: internal
+**Effort**: S (re-rated 2026-06-02: M -> S; fix-strategy option 1 is a single `if (response.status !== 200) throw` branch per body)
+**WSJF**: 18.0 (auto-transition Open -> Known Error; Effort M -> S)
 **Type**: technical
 
 ## Description

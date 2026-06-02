@@ -1,9 +1,11 @@
 # Problem 006: capture-problem deferred refresh causes downstream halt
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-05-14
-**Priority**: 3 (Medium) - Impact: 3 x Likelihood: 1 (deferred - re-rate at next /wr-itil:review-problems)
-**Effort**: M (deferred - re-rate at next /wr-itil:review-problems)
+**Priority**: 10 (High) - Impact: 2 x Likelihood: 5 (re-rated 2026-06-02: fires after every capture in same session; previously observed multiple times)
+**Origin**: internal
+**Effort**: M
+**WSJF**: 10.0 (auto-transition Open -> Known Error; Likelihood 5 per "known gap, no controls")
 **Type**: technical
 
 ## Description

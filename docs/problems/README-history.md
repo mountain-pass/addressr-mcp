@@ -17,3 +17,5 @@ Last reviewed: 2026-05-13. P004 closed on user verification (Verification Pendin
 ## 2026-05-14
 
 Last reviewed: 2026-05-14. Inline reconcile: P005 captured (external-comms marker fails on empty session_id; deferred placeholders pending next review). Retro batch in progress; more captures may follow before the next `/wr-itil:review-problems` re-rates the deferred set.
+
+Last reviewed: 2026-05-14. Inline reconcile during `/wr-retrospective:run-retro`: P005, P006, P007, P008 captured (external-comms marker, capture-problem downstream halt, CI cryptic JSON error, em-dash detection). All four carry deferred placeholders awaiting next `/wr-itil:review-problems` re-rating.
