@@ -80,3 +80,13 @@ Several options, in order of intrusiveness:
 - reproduction sessions: 2026-05-13 (P004 work flow), 2026-05-14 (retro batch ticketing)
 - packages/itil/skills/capture-problem/SKILL.md (Step 6 deferred-refresh contract)
 - packages/itil/skills/manage-problem/SKILL.md (Step 0 preflight + P149 carve-out)
+- **Reported upstream**: https://github.com/windyroad/agent-plugins/issues/126#issuecomment-4598836649 (2026-06-02)
+
+## Reported Upstream
+
+- **URL**: https://github.com/windyroad/agent-plugins/issues/126#issuecomment-4598836649
+- **Reported**: 2026-06-02
+- **Template used**: problem-report.yml (existing issue; routed to comment path per Step 5c)
+- **Disclosure path**: commented-on-existing-issue (Step 5c, P070)
+- **Cross-reference confirmed**: yes (comment body cites downstream file path explicitly)
+- **Notes**: dedup match on issue #126 (same-problem, high confidence: upstream issue title literally names the HALT_ROUTE_RECONCILE class P006 documents). Comment adds two additional reproduction sessions from addressr-mcp plus the three fix-shape ranking with local lean (option 2: auto-route on halt in manage-problem Step 0 classifier).
