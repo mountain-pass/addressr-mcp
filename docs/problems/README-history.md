@@ -29,3 +29,7 @@ Last reviewed: 2026-06-02 (retro pass). P010 captured (relevance-evaluator false
 ## 2026-06-02 (2)
 
 Last reviewed: 2026-06-02 **P007 verification pending** — fix-strategy option 1 applied in `test/server.test.mjs` (status-not-200 throw branches before body-shape assertions); JTBD-102 captured (proposed). P011 captured (`/wr-itil:work-problems` Step 6.5 push:watch halted on CI run 26800948615 — subtest 1 "lists kebab-case addressr tools" fails when upstream Addressr API root drops `search-*` rels; distinct from P007's status-branch surface).
+
+## 2026-06-02 (3)
+
+Last reviewed: 2026-06-02 **P011 fix released, verification pending** — root cause was lapsed RapidAPI subscription on the GHA RAPIDAPI_KEY; rotated to active key from ../addressr/.env; CI run 26808770054 rerun green. JTBD-102 ratified (human-oversight: confirmed). P007 stays Verification Pending (status-branch path now exercisable; awaits a future non-200 reproduction).

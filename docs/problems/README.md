@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-02 **P011 fix released, verification pending** — root cause was lapsed RapidAPI subscription on the GHA RAPIDAPI_KEY; rotated to active key from ../addressr/.env; CI run 26808770054 rerun green. JTBD-102 ratified (human-oversight: confirmed). P007 stays Verification Pending (status-branch path now exercisable; awaits a future non-200 reproduction).
+> Last reviewed: 2026-06-02 (retro) **P012 captured (Known Error, WSJF 6.0)** — split from P011 per concern-boundary: structural getRoot() silent-degradation guard against 4xx/no-_links upstream responses (option 1 fix-strategy from P011, defense-in-depth). Briefing entries added per `releases-and-ci.md` (Link header upstream behaviour, `../addressr/.env` key rotation source) and `governance-workflow.md` (ground-truth-probe diagnosis pattern). Critical Points updated. Earlier same-session: P011 fix released (key rotation, CI green run 26808770054); JTBD-102 ratified (human-oversight: confirmed); P007 stays Verification Pending.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -13,6 +13,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 10.0 | P005 | external-comms marker fails on empty session_id | 10 | Known Error | M | 2026-05-14 | internal |
 | 10.0 | P006 | capture-problem deferred refresh causes downstream halt | 10 | Known Error | M | 2026-05-14 | internal |
 | 9.0 | P002 | Addressr Link Relations Not Resolvable | 9 | Known Error | M | 2026-04-23 | internal |
+| 6.0 | P012 | getRoot() silent-degradation on non-200 or empty-_links response | 6 | Known Error | S | 2026-06-02 | internal |
 | 4.5 | P009 | MCP Missing Postcode, State, And Locality Endpoints | 9 | Open | M | 2026-06-02 | internal |
 | 2.0 | P010 | relevance evaluator false-positive on upstream-plugin paths | 4 | Open | M | 2026-06-02 | internal |
 
