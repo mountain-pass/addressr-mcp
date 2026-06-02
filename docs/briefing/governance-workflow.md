@@ -12,6 +12,8 @@
   <!-- signal-score: 3 | last-classified: 2026-06-02 | first-written: 2026-05-13 -->
 - `/wr-itil:report-upstream` is a separate skill but invocable via the Skill tool from any retro-end / review-end context. "Separate skill" is not "outside scope" - the trailing pointer at the end of capture-problem / review-problems / etc. names the right follow-up skill, and the assistant should invoke it directly when the user has already directed the action, not prose-ask permission. See memory `feedback_skill_separation_not_scope_exclusion.md`.
   <!-- signal-score: 2 | last-classified: 2026-06-02 | first-written: 2026-06-02 -->
+- Substance-confirm-before-build guard (ADR-074 for ADRs, analogous ADR-068 surface for JTBDs) blocks fix implementation when the proposal builds on an unratified decision substance (a `.proposed.md` ADR without `human-oversight: confirmed`, or a JTBD / persona file with `human-oversight: pending` / missing field). In AFK mode, the iter cannot prompt: queue a `category: direction` outstanding_question naming the unratified artefact and route the ticket to `action: skipped, skip_reason_category: user-answerable`. The maintainer persona has been unratified since the JTBD framework bootstrap (commit a779439, 2026-06-02), so every AFK iter on a maintainer-anchored ticket will halt here until `/wr-jtbd:confirm-jobs-and-personas` clears it.
+  <!-- signal-score: 0 | last-classified: 2026-06-03 | first-written: 2026-06-03 -->
 
 ## What Will Surprise You
 
