@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-03 **P012 verification pending** — getRoot() guard ships option-1 fix-strategy: throws when `allLinks.length === 0`, existing catch surfaces RAPIDAPI_KEY + subscription vocabulary via console.warn. New unit test in `test/dynamic-tools.test.mjs` (`surfaces upstream cause when API root returns 4xx + JSON error body (P012)`) asserts fallback semantics + diagnostic vocabulary on stderr; all 11 unit tests pass. Architect PASS (no new ADR; clarifies ADR-002 stated failure handling).
+> Last reviewed: 2026-06-03 **P011 closed** — prior-session evidence drain (run-retro Step 4a Sub-step 9 / P282): README cell `yes — observed: CI run 26808770054 rerun success post-rotation; local integration test 4/4 pass with the rotated key` (written 2026-06-02) consumed at session-level retro. Earlier same-session: P012 fixed (Known Error → Verification Pending — getRoot() guard ships option-1 throw on empty rels); P013 captured (wr-jtbd:agent returns Relevant-files-only output, internal).
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -23,7 +23,6 @@ Fix released, awaiting user verification (driven off the dual-tolerant glob `doc
 | ID | Title | Released | Fix summary | Likely verified? |
 |----|-------|----------|-------------|------------------|
 | P007 | CI integration test cryptic JSON parse on upstream error | 2026-06-02 | test/server.test.mjs branches on envelope.status before body-shape assertions; non-200 throws name the upstream tool + status + body verbatim. | no — not observed |
-| P011 | CI integration test tool-list assertion breaks when upstream drops search-* rels | 2026-06-02 | GHA secrets.RAPIDAPI_KEY rotated to active-subscription key from ../addressr/.env; CI workflow run 26808770054 rerun green (build-and-test + release both success). Structural option-1 (server-level guard against silent empty-rels in getRoot()) deferred — candidate for split. | yes — observed: CI run 26808770054 rerun success post-rotation; local integration test 4/4 pass with the rotated key |
 | P012 | getRoot() silent-degradation on non-200 or empty-_links response | 2026-06-03 | src/server.mjs throws on `allLinks.length === 0` after `getRoot()`; existing catch surfaces RAPIDAPI_KEY + subscription vocabulary via console.warn. Option 1 fix-strategy applied per ticket Fix Strategy. | yes — observed: new unit test `surfaces upstream cause when API root returns 4xx + JSON error body (P012)` confirms RED→GREEN; all 11 unit tests pass |
 
 ## Parked

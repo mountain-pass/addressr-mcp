@@ -1,6 +1,6 @@
 # Problem 011: CI integration test tool-list assertion breaks when upstream Addressr API drops search-* link relations
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-06-02
 **Released**: 2026-06-02 (key rotation; CI run 26808770054 rerun green)
 **Priority**: 9 (Medium) - Impact: 3 (CI red blocks releases) x Likelihood: 3 (subscription state can lapse independently of test code or upstream rel set)
