@@ -3,6 +3,8 @@ status: proposed
 job-id: diagnose-red-ci-quickly
 persona: maintainer
 date-created: 2026-06-02
+human-oversight: confirmed
+oversight-date: 2026-06-02
 screens:
   - test/server.test.mjs
   - GitHub Actions
