@@ -10,11 +10,20 @@
 
 ## Description
 
-The integration test `test/server.test.mjs` subtest 1 "lists kebab-case addressr tools" asserts that `search-addresses` (plus `search-localities` / `search-postcodes` / `search-states`) appear in the dynamically-registered tool list. The list is built from the Addressr API root's advertised link relations (HATEOAS). When the upstream root drops a rel, the corresponding `search-*` tool is silently skipped (per `src/server.mjs` dynamic registration), and the test fails with `Expected tool 'search-addresses' in ["health","get-address","get-locality","get-postcode","get-state"]`.
+The integration test `test/server.test.mjs` subtest 1 "lists kebab-case addressr tools" asserts that `search-addresses` (plus `search-localities` / `search-postcodes` / `search-states`) appear in the dynamically-registered tool list. The list is built from the Addressr API root's advertised link relations (HATEOAS). When the response body lacks a `_links` array, the corresponding `search-*` tool is silently skipped (per `src/server.mjs` dynamic registration), and the test fails with `Expected tool 'search-addresses' in ["health","get-address","get-locality","get-postcode","get-state"]`.
 
-Observed 2026-06-02 push:watch on CI run `26800948615`. Previous green run was `25805639642` on 2026-05-13. Between those two pushes, no test code change touched subtest 1 (last edit: 2026-04-25 in commit `0da3803`); the failure root cause is upstream link-rel drift. The runner-side warnings (`# Warning: API root does not advertise https://addressr.io/rels/address-search; skipping search-addresses`) name the missing rels explicitly, but only as TAP comments — the test assertion fires before the warnings are surfaced as actionable signal.
+Observed 2026-06-02 push:watch on CI run `26800948615`. Previous green run was `25805639642` on 2026-05-13. Between those two pushes, no test code change touched subtest 1 (last edit: 2026-04-25 in commit `0da3803`).
 
-Distinct from P007 (cryptic JSON parse on upstream non-200): P007's status branches only fire in the search-addresses / get-address subtests, which CI never reaches because subtest 1 fails first.
+### Diagnosis correction 2026-06-02 (post-capture verification)
+
+Initial capture diagnosed this as "upstream API root dropped search-* rels". Cross-check disconfirms:
+
+- `../addressr` core repo source still advertises all 4 search-* rels (`src/waycharter-server.js:669,758,817,870` and `lib/src/waycharter-server.js`). Upstream has NOT retired the rels.
+- Local probe of `https://addressr.p.rapidapi.com/` with a stale RAPIDAPI_KEY returned `{"message":"Invalid API key"}` (valid JSON, no `_links` array). Feeding that response into `src/server.mjs:127-130` produces `advertisedRels = Set([])` — identical observable to the CI failure.
+
+**Most likely actual root cause: CI's `secrets.RAPIDAPI_KEY` is stale** (rotated locally without updating the GitHub Actions secret — same pattern P007 reproduced at workflow run 25802567134). The failure observable (tool-list assertion) is a downstream symptom; the structural bug is **`getRoot()` silently succeeds on auth-error responses** because RapidAPI returns those as valid JSON without `_links`.
+
+Distinct from P007: P007's status branches fire in the search-addresses / get-address subtests AFTER tool registration. P011's failure fires earlier, during tool registration in the `before(...)` hook. P007 cannot fire because subtest 1 fails first. Both have the same upstream-state root cause when auth is stale.
 
 ## Symptoms
 
@@ -25,7 +34,13 @@ Distinct from P007 (cryptic JSON parse on upstream non-200): P007's status branc
 
 ## Workaround
 
-When CI is red on subtest 1, check the upstream Addressr API root via `curl https://addressr.p.rapidapi.com/` and inspect the advertised `_links`. If `address-search` / `postcode-search` / `locality-search` / `state-search` rels are missing, the upstream is in a degraded state. The test cannot pass without all four rels in the upstream root.
+When CI is red on subtest 1, in order:
+
+1. Probe the upstream from a local shell with the current `RAPIDAPI_KEY`: `curl -H "x-rapidapi-key: $RAPIDAPI_KEY" -H "x-rapidapi-host: addressr.p.rapidapi.com" https://addressr.p.rapidapi.com/ | jq`. If the response is `{"message":"Invalid API key"}` or similar auth error, the key is stale.
+2. Rotate / refresh the GitHub Actions `secrets.RAPIDAPI_KEY` to a valid subscription key (RapidAPI dashboard → subscription → key).
+3. Re-run the failing workflow; subtest 1 should pass once the upstream returns a valid root response with `_links`.
+
+If the key is verified valid and the upstream is still missing rels in the local probe, the root cause is genuine upstream rel-drift (the original diagnosis). Cross-reference `../addressr` source to confirm which rels the deployed addressr instance actually serves, and report upstream to the addressr core repo if a rel was retired without notice.
 
 ## Impact Assessment
 
@@ -42,24 +57,39 @@ The assertion in `test/server.test.mjs:51` hard-codes the expected tool list aga
 
 ### Fix Strategy
 
-Several options:
+The corrected root-cause analysis (above) makes the immediate remediation distinct from the structural one.
 
-1. **Test-level: assert minimum tool subset** — change the assertion from `expected.every(name => names.includes(name))` to `assert.ok(names.includes('health') && names.includes('get-address'))` (the rels we know are always advertised by the upstream's baseline). Cheapest fix; preserves end-to-end coverage of the proxy's HATEOAS registration without coupling to the upstream's optional rels.
+**Immediate (unblock CI)**: rotate `secrets.RAPIDAPI_KEY` to a valid subscription key and re-run the workflow. CI green confirms the diagnosis.
 
-2. **Test-level: skip subtest when rels missing** — pre-check the registered tool list against expected and skip the assertion with a TAP "skip" reason when the upstream is in a degraded state. Preserves the test as a regression check for when the upstream is fully advertising; doesn't flag drift.
+**Structural (long-term)**: harden `getRoot()` in `src/server.mjs` so an auth-error response does not silently masquerade as "zero rels advertised". Options:
 
-3. **Mock the upstream** — give subtest 1 a static API-root fixture so the test is decoupled from live upstream state. Heaviest; trades real-world coverage for determinism.
+1. **Server-level: detect missing `_links` and throw** — in `getRoot()` after `fetchLink(API_URL)`, assert the response has a `_links` field (or HAL-equivalent). If absent, throw `"Addressr API root returned no _links; check RAPIDAPI_KEY validity (response body: ...)"`. The dynamic registration's `try/catch` catches it and falls back to "only health + get-address". The test surface (subtest 1) still fails on the missing tools, but the warning message names the cause (auth error vs genuine rel drop). **Recommended.**
 
-4. **CI-level: pre-flight upstream rel check** — pre-flight check the upstream rels before running the integration suite. When degraded, skip the suite with a clear "upstream rel set degraded" reason.
+2. **Server-level: detect non-200 status before parsing** — check HTTP status before relying on the body shape. RapidAPI returns 401/403 on invalid keys; the current code path silently parses the error body as JSON. Cleaner separation than (1) but requires reaching into the `waycharter-client` fetch layer.
 
-Option 1 is the natural fit. The proxy contract holds: when the upstream advertises a rel, we register the tool; the test verifies that the baseline rels result in registered tools, not that every possible rel is present. Recommendation pending user direction.
+3. **Test-level: assert minimum tool subset** — change subtest 1 to assert only the baseline (`health` + `get-address`). Decouples from optional rels. Caveat: defeats the test's regression check for when the upstream legitimately drops a rel. Cheapest but loses signal.
+
+4. **Test-level: pre-check + skip with reason** — pre-fetch the upstream root; if `_links` missing OR auth error, skip subtest 1 with TAP `skip` and a clear reason. Preserves regression check when upstream is healthy; doesn't fail loudly on auth drift.
+
+5. **Mock the upstream** — static API-root fixture for subtest 1. Decouples test from live upstream entirely. Heavier; against ADR-005 (live RapidAPI per JTBD-102 persona constraints).
+
+6. **CI pre-flight** — separate workflow step that probes the upstream and fails with a clear "RAPIDAPI_KEY appears invalid" message before the test suite runs. Heaviest; adds CI complexity.
+
+Option 1 (server-level detect-missing-_links-and-throw) is the natural fit. It addresses the structural silent-degradation bug, surfaces auth failure as a clear error in the test log, and preserves the test as a regression check for genuine upstream rel drops. Implementing it in `src/server.mjs` makes the fix benefit all callers of the dynamic registration code, not just this test.
+
+### Recommendation
+
+Pair option 1 (structural fix in `getRoot()`) with the immediate GHA secret rotation. The TDD shape: write a unit test for `getRoot()` that asserts on an auth-error response body shape, then implement the throw.
 
 ### Investigation Tasks
 
+- [x] Cross-check upstream rel set against `../addressr` source — confirmed all 4 search-* rels still present
+- [x] Reproduce locally — stale RAPIDAPI_KEY returns `{"message":"Invalid API key"}`, identical observable to CI
+- [ ] Rotate `secrets.RAPIDAPI_KEY` in GitHub Actions; re-run CI to confirm immediate fix
 - [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] Confirm baseline-always-advertised rel set with the addressr core repo maintainers
-- [ ] Decide between options 1-4 above
+- [ ] Decide between options 1-6 (recommendation: option 1 server-level detect-missing-_links-and-throw)
 - [ ] Verify P007 status-branches once subtest 1 is fixed (currently blocked by subtest 1 cascade)
+- [ ] Consider whether to report the silent-degradation behaviour to `../addressr` core (the upstream API serving auth-error bodies that look like empty-root HAL responses is a separable upstream concern)
 
 ## Related
 
