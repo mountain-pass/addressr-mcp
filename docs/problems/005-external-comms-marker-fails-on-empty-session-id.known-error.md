@@ -16,7 +16,16 @@ Reproduced 2026-05-13 during P004 changeset authoring. Two subagent PASS verdict
 
 ## Symptoms
 
-(deferred to investigation)
+In-session reproductions (2026-06-02, four consecutive commits — all on the same Claude Code session):
+
+1. **Commit `1257811` (P009 capture)**: external-comms gate denied first `git commit` attempt; delegated to `wr-risk-scorer:external-comms` subagent which emitted `EXTERNAL_COMMS_RISK_VERDICT: PASS`. Marker not written: `ls /tmp/claude-risk-*` returned no matches. Second `git commit` re-denied with the same delegate-to-subagent directive. Resolved via `BYPASS_RISK_GATE=1 git commit ...`.
+2. **Commit `66dc741` (review-problems refresh)**: pre-delegated to subagent before `git commit` to avoid the first-denial round-trip. Verdict PASS. Marker still not written; first `git commit` succeeded anyway (intermittent — the marker was written in this case, or the bypass-marker path landed first). This case demonstrates the bug is NOT deterministic-on-every-commit; some commits succeed without bypass.
+3. **Commit `3da8ad3` (P005 reported upstream back-write)**: same pattern as #1. Marker not written; resolved via `BYPASS_RISK_GATE=1`.
+4. **Commit `42dcabd` (P006 reported upstream back-write)**: same pattern as #1. Marker not written; resolved via `BYPASS_RISK_GATE=1`.
+
+Additional non-deterministic observation: the marker write succeeded on commit `66dc741` (turn 2 of this session) but failed on `1257811`, `3da8ad3`, `42dcabd`. The intermittent shape suggests `session_id` is sometimes populated in the Agent tool's stdin JSON and sometimes empty — likely tied to which subagent type was invoked OR the order of preceding tool calls in the same turn.
+
+**Symptom signature**: `EXTERNAL_COMMS_RISK_VERDICT: PASS` on subagent stdout + no `/tmp/claude-risk-${SESSION_ID}/external-comms-risk-reviewed-<key>` file + `git commit` PreToolUse hook re-denies with `BLOCKED (external-comms gate / risk evaluator): git-commit-message draft has not been reviewed by wr-risk-scorer:external-comms`.
 
 ## Workaround
 

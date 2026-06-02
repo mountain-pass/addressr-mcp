@@ -19,3 +19,7 @@ Last reviewed: 2026-05-13. P004 closed on user verification (Verification Pendin
 Last reviewed: 2026-05-14. Inline reconcile: P005 captured (external-comms marker fails on empty session_id; deferred placeholders pending next review). Retro batch in progress; more captures may follow before the next `/wr-itil:review-problems` re-rates the deferred set.
 
 Last reviewed: 2026-05-14. Inline reconcile during `/wr-retrospective:run-retro`: P005, P006, P007, P008 captured (external-comms marker, capture-problem downstream halt, CI cryptic JSON error, em-dash detection). All four carry deferred placeholders awaiting next `/wr-itil:review-problems` re-rating.
+
+## 2026-06-02
+
+Last reviewed: 2026-06-02. Five auto-transitions Open -> Known Error (P002, P005, P006, P007, P008 all carry confirmed root cause + workaround). Effort re-rates: P007 M -> S (single `if (status !== 200)` branch); P008 M -> S (pre-commit `grep -P '\x{2014}'` hook). Likelihood re-rates: P002 4 -> 3 (local workaround shipped, upstream reported addressr#456); P005 + P006 -> 5 (previously observed failure mode, both fired again this session). P009 captured today, stays Open pending root-cause investigation. Relevance pass surfaced P005 + P006 as CLOSE-CANDIDATE-WITH-CAVEAT; user direction: keep both, report upstream.

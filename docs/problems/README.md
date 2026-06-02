@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-02. Five auto-transitions Open -> Known Error (P002, P005, P006, P007, P008 all carry confirmed root cause + workaround). Effort re-rates: P007 M -> S (single `if (status !== 200)` branch); P008 M -> S (pre-commit `grep -P '\x{2014}'` hook). Likelihood re-rates: P002 4 -> 3 (local workaround shipped, upstream reported addressr#456); P005 + P006 -> 5 (previously observed failure mode, both fired again this session). P009 captured today, stays Open pending root-cause investigation. Relevance pass surfaced P005 + P006 as CLOSE-CANDIDATE-WITH-CAVEAT; user direction: keep both, report upstream.
+> Last reviewed: 2026-06-02 (retro pass). P010 captured (relevance-evaluator false-positive on upstream-plugin paths; Open, Severity 4, Effort M, WSJF 2.0). Symptom append on P005 with 4 in-session reproductions. P005 + P006 reported upstream as comments on `windyroad/agent-plugins#181` and `#126`. Earlier same-session refresh covered the 5 auto-transitions and re-rates for P002 / P005 / P006 / P007 / P008.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -15,6 +15,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 10.0 | P006 | capture-problem deferred refresh causes downstream halt | 10 | Known Error | M | 2026-05-14 | internal |
 | 9.0 | P002 | Addressr Link Relations Not Resolvable | 9 | Known Error | M | 2026-04-23 | internal |
 | 4.5 | P009 | MCP Missing Postcode, State, And Locality Endpoints | 9 | Open | M | 2026-06-02 | internal |
+| 2.0 | P010 | relevance evaluator false-positive on upstream-plugin paths | 4 | Open | M | 2026-06-02 | internal |
 
 ## Verification Queue
 
