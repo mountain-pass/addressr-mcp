@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-03 **P011 closed** — prior-session evidence drain (run-retro Step 4a Sub-step 9 / P282): README cell `yes — observed: CI run 26808770054 rerun success post-rotation; local integration test 4/4 pass with the rotated key` (written 2026-06-02) consumed at session-level retro. Earlier same-session: P012 fixed (Known Error → Verification Pending — getRoot() guard ships option-1 throw on empty rels); P013 captured (wr-jtbd:agent returns Relevant-files-only output, internal).
+> Last reviewed: 2026-06-03 **README reconciled** — 1 drift entry corrected: P013 added to WSJF Rankings (deferred placeholders Priority 3, Effort M, WSJF 1.5; pending re-rate at next /wr-itil:review-problems). Reconciliation contract per P118 + ADR-014 amended.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -15,6 +15,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 9.0 | P002 | Addressr Link Relations Not Resolvable | 9 | Known Error | M | 2026-04-23 | internal |
 | 4.5 | P009 | MCP Missing Postcode, State, And Locality Endpoints | 9 | Open | M | 2026-06-02 | internal |
 | 2.0 | P010 | relevance evaluator false-positive on upstream-plugin paths | 4 | Open | M | 2026-06-02 | internal |
+| 1.5 | P013 | wr-jtbd:agent returns "Relevant files:" output without textual verdict | 3 | Open | M | 2026-06-03 | internal |
 
 ## Verification Queue
 
