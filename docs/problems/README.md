@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-02 **P007 verification pending** — fix-strategy option 1 applied in `test/server.test.mjs` (status-not-200 throw branches before body-shape assertions); JTBD-102 captured (proposed). P011 captured (`/wr-itil:work-problems` Step 6.5 push:watch halted on CI run 26800948615 — subtest 1 "lists kebab-case addressr tools" fails when upstream Addressr API root drops `search-*` rels; distinct from P007's status-branch surface).
+> Last reviewed: 2026-06-02 **P011 fix released, verification pending** — root cause was lapsed RapidAPI subscription on the GHA RAPIDAPI_KEY; rotated to active key from ../addressr/.env; CI run 26808770054 rerun green. JTBD-102 ratified (human-oversight: confirmed). P007 stays Verification Pending (status-branch path now exercisable; awaits a future non-200 reproduction).
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -14,7 +14,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 10.0 | P006 | capture-problem deferred refresh causes downstream halt | 10 | Known Error | M | 2026-05-14 | internal |
 | 9.0 | P002 | Addressr Link Relations Not Resolvable | 9 | Known Error | M | 2026-04-23 | internal |
 | 4.5 | P009 | MCP Missing Postcode, State, And Locality Endpoints | 9 | Open | M | 2026-06-02 | internal |
-| 4.5 | P011 | CI integration test tool-list assertion breaks when upstream drops search-* rels | 9 | Open | M | 2026-06-02 | internal |
 | 2.0 | P010 | relevance evaluator false-positive on upstream-plugin paths | 4 | Open | M | 2026-06-02 | internal |
 
 ## Verification Queue
@@ -24,6 +23,7 @@ Fix released, awaiting user verification (driven off the dual-tolerant glob `doc
 | ID | Title | Released | Fix summary | Likely verified? |
 |----|-------|----------|-------------|------------------|
 | P007 | CI integration test cryptic JSON parse on upstream error | 2026-06-02 | test/server.test.mjs branches on envelope.status before body-shape assertions; non-200 throws name the upstream tool + status + body verbatim. | no — not observed |
+| P011 | CI integration test tool-list assertion breaks when upstream drops search-* rels | 2026-06-02 | GHA secrets.RAPIDAPI_KEY rotated to active-subscription key from ../addressr/.env; CI workflow run 26808770054 rerun green (build-and-test + release both success). Structural option-1 (server-level guard against silent empty-rels in getRoot()) deferred — candidate for split. | yes — observed: CI run 26808770054 rerun success post-rotation; local integration test 4/4 pass with the rotated key |
 
 ## Parked
 

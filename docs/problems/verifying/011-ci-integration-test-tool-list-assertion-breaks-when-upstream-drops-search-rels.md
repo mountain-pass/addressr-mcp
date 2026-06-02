@@ -1,12 +1,13 @@
 # Problem 011: CI integration test tool-list assertion breaks when upstream Addressr API drops search-* link relations
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-06-02
-**Priority**: 9 (Medium) - Impact: 3 (CI red blocks releases) x Likelihood: 3 (upstream rel set drifts independently)
+**Released**: 2026-06-02 (key rotation; CI run 26808770054 rerun green)
+**Priority**: 9 (Medium) - Impact: 3 (CI red blocks releases) x Likelihood: 3 (subscription state can lapse independently of test code or upstream rel set)
 **Origin**: internal
-**Effort**: M (decision required: rewrite test to use registered-tool subset, mock upstream, or skip when rels missing)
-**WSJF**: 4.5
-**Type**: technical
+**Effort**: S (immediate remediation = key rotation; one secret-set + workflow rerun)
+**WSJF**: 0 (Verification Pending — multiplier 0 per ADR-022)
+**Type**: operational + technical
 
 ## Description
 
@@ -90,6 +91,25 @@ Pair option 1 (structural fix in `getRoot()`) with the immediate GHA secret rota
 - [ ] Decide between options 1-6 (recommendation: option 1 server-level detect-missing-_links-and-throw)
 - [ ] Verify P007 status-branches once subtest 1 is fixed (currently blocked by subtest 1 cascade)
 - [ ] Consider whether to report the silent-degradation behaviour to `../addressr` core (the upstream API serving auth-error bodies that look like empty-root HAL responses is a separable upstream concern)
+
+## Fix Released
+
+**Date**: 2026-06-02
+**Mechanism**: GitHub Actions `secrets.RAPIDAPI_KEY` rotated to a key with an active RapidAPI subscription (source: `../addressr/.env` `RAPIDAPI_KEY` — owner key, verified active by direct curl probe returning HTTP 200 with rels in `Link` header and by local integration test 4/4 pass).
+**Verification**: CI workflow run [`26808770054`](https://github.com/mountain-pass/addressr-mcp/actions/runs/26808770054) re-ran post-rotation: `build-and-test` success, `release` success.
+
+**Final root cause** (the diagnosis went through four iterations — see Root Cause Analysis section above):
+
+The real failure: the addressr-mcp project's RapidAPI subscription on the original GHA key had lapsed since 2026-05-13. The upstream returned **HTTP 4xx** with a JSON error body that lacked `_links`. `src/server.mjs:127-130` `getRoot()` then succeeded silently with `advertisedRels = Set([])`, causing the dynamic registration to skip all `search-*` tools and subtest 1's tool-list assertion to fail.
+
+The earlier hypotheses (upstream rel drop, stale-but-valid key, broken `Link`-header parsing) all failed verification against direct evidence:
+- `../addressr` source confirms rels are still advertised (in source code).
+- Live probe with the owner-subscription key returns HTTP 200 with all 4 search-* rels in the HTTP `Link` header — `waycharter-client` parses them correctly (4/4 local integration test pass).
+- The body `{}` shape is intentional; rels live in the header per RFC 5988.
+
+**Outstanding structural concern (deferred, candidate for new ticket)**:
+
+`getRoot()` silently masquerading a 4xx-with-error-body as "0 rels advertised" cost three rounds of misdirected diagnosis this session. The defense-in-depth fix is option 1 of the Fix Strategy section: detect missing `_links` (or non-200 status, or empty body) in `getRoot()` and throw a clear `"Addressr API root returned no _links / non-200 / empty body; check RAPIDAPI_KEY subscription state (response: ...)"`. Captured here as a deferred follow-up; consider splitting into its own ticket if/when picked up — the current verification is on the immediate remediation (key rotation), not on the structural guard.
 
 ## Related
 
