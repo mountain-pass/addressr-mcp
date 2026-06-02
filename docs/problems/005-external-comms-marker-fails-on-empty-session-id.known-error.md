@@ -60,3 +60,13 @@ Wire `risk-score-mark.sh` (and any other PostToolUse:Agent risk-scorer hook) to 
 - captured via /wr-itil:capture-problem during /wr-retrospective:run-retro 2026-05-14
 - workaround landed in commit `e271601` (P004 changeset written via heredoc)
 - packages/retrospective/.../risk-score-mark.sh (wr-risk-scorer plugin 0.7.2)
+- **Reported upstream**: https://github.com/windyroad/agent-plugins/issues/181#issuecomment-4598824070 (2026-06-02)
+
+## Reported Upstream
+
+- **URL**: https://github.com/windyroad/agent-plugins/issues/181#issuecomment-4598824070
+- **Reported**: 2026-06-02
+- **Template used**: problem-report.yml (existing issue; routed to comment path per Step 5c)
+- **Disclosure path**: commented-on-existing-issue (Step 5c, P070)
+- **Cross-reference confirmed**: yes (comment body cites downstream file path explicitly)
+- **Notes**: dedup match on issue #181 (composed P035+P037+P041); P005's root cause (empty session_id from stdin) is distinct from #181 Finding 1's SURFACE/draft template gap but symptomatically adjacent. User direction at 2026-06-02 review was to comment, allowing upstream triage to decide whether to split.
