@@ -3,6 +3,8 @@ status: proposed
 job-id: release-new-version
 persona: maintainer
 date-created: 2026-04-23
+human-oversight: confirmed
+oversight-date: 2026-06-03
 screens:
   - GitHub Actions
 ---

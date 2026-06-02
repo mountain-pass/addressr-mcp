@@ -3,7 +3,8 @@ status: proposed
 job-id: enforce-prose-style-automatically
 persona: maintainer
 date-created: 2026-06-03
-human-oversight: pending
+human-oversight: confirmed
+oversight-date: 2026-06-03
 screens:
   - scripts/check-em-dashes.sh
   - package.json (lint-staged block)

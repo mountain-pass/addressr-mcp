@@ -1,6 +1,8 @@
 ---
 name: maintainer
 description: Contributor maintaining and releasing the Addressr MCP server
+human-oversight: confirmed
+oversight-date: 2026-06-03
 ---
 
 # Maintainer

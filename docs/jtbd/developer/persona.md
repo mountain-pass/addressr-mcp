@@ -1,6 +1,8 @@
 ---
 name: developer
 description: Software developer integrating the Addressr MCP server into their application
+human-oversight: confirmed
+oversight-date: 2026-06-03
 ---
 
 # Developer
