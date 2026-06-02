@@ -31,3 +31,4 @@ Contributor maintaining and releasing the Addressr MCP server.
 | ID | Job | File |
 |----|-----|------|
 | JTBD-101 | Release New Version | [maintainer/JTBD-101-release-new-version.proposed.md](maintainer/JTBD-101-release-new-version.proposed.md) |
+| JTBD-102 | Diagnose Red CI Quickly | [maintainer/JTBD-102-diagnose-red-ci-quickly.proposed.md](maintainer/JTBD-102-diagnose-red-ci-quickly.proposed.md) |

@@ -1,6 +1,6 @@
 # Problem 007: CI integration test cryptic JSON parse on upstream error
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-14
 **Priority**: 9 (Medium) - Impact: 3 x Likelihood: 3 (re-rated 2026-06-02: observed at least twice; tied to upstream API state changes)
 **Origin**: internal
@@ -71,3 +71,13 @@ Option 1 is the natural fit - test code owns the assertion surface, and a single
 - workflow run 25804611114 (the green re-run after the secret was rotated)
 - test/server.test.mjs (the suite that produces the cryptic error)
 - src/server.mjs lines 185-190 (the `health` fallback path that explains why health passes but search-addresses fails)
+
+## Fix Released
+
+Fixed 2026-06-02 in `test/server.test.mjs` per fix-strategy option 1. Both live-RapidAPI subtests (`searches for addresses ...` and `retrieves address details ...`) now branch on `envelope.status` before the body-shape assertions: when the upstream MCP envelope reports a non-200 status, the test throws `Error("Expected 200 from upstream <tool> but got <status>: <body>")` so CI surfaces the upstream HTTP status (403 / 429 / 5xx) and the upstream response body verbatim instead of failing inside the MCP SDK's response-unpacking path with the cryptic `Unexpected token 'M', "MCP error "... is not valid JSON` stack.
+
+In-session exercise: `npm run test:integration` runs cleanly on this AFK environment (suite skips with `RAPIDAPI_KEY not set` per the `hasKey()` guard, confirming no syntax regression in the new branches). Production verification requires a CI run with the live RapidAPI key set + the upstream returning non-200 - the next time the upstream API state changes the maintainer will see the new diagnostic message in the workflow log.
+
+Awaiting user verification.
+
+Also added: docs/jtbd/maintainer/JTBD-102-diagnose-red-ci-quickly.proposed.md (the documented maintainer job that motivated the change; index updated).

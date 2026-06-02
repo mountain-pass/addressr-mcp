@@ -81,7 +81,12 @@ describe(
 
       const envelope = JSON.parse(text);
       assert.strictEqual(typeof envelope.status, 'number', 'envelope.status should be a number');
-      assert.strictEqual(envelope.status, 200, 'expected 200 OK from live search');
+      // P007: surface upstream status verbatim so CI red runs name the API state, not the SDK's JSON-parse stack.
+      if (envelope.status !== 200) {
+        throw new Error(
+          `Expected 200 from upstream search-addresses but got ${envelope.status}: ${JSON.stringify(envelope.body)}`,
+        );
+      }
       assert.ok(envelope.headers && typeof envelope.headers === 'object', 'envelope.headers should be an object');
       assert.ok(envelope.body, 'envelope.body should be present');
 
@@ -101,6 +106,12 @@ describe(
       const searchEnvelope = JSON.parse(
         searchResult.content.find((c) => c.type === 'text').text,
       );
+      // P007: surface upstream status verbatim so CI red runs name the API state, not the SDK's JSON-parse stack.
+      if (searchEnvelope.status !== 200) {
+        throw new Error(
+          `Expected 200 from upstream search-addresses but got ${searchEnvelope.status}: ${JSON.stringify(searchEnvelope.body)}`,
+        );
+      }
       const results = Array.isArray(searchEnvelope.body)
         ? searchEnvelope.body
         : [searchEnvelope.body];
@@ -118,7 +129,12 @@ describe(
       assert.ok(detailText, 'Should have detail content');
 
       const detailEnvelope = JSON.parse(detailText);
-      assert.strictEqual(detailEnvelope.status, 200, 'expected 200 OK from get-address');
+      // P007: surface upstream status verbatim so CI red runs name the API state, not the SDK's JSON-parse stack.
+      if (detailEnvelope.status !== 200) {
+        throw new Error(
+          `Expected 200 from upstream get-address but got ${detailEnvelope.status}: ${JSON.stringify(detailEnvelope.body)}`,
+        );
+      }
       assert.ok(detailEnvelope.headers, 'detail envelope should have headers');
       assert.ok(detailEnvelope.body, 'detail envelope should have body');
     });

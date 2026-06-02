@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-02 (retro pass). P010 captured (relevance-evaluator false-positive on upstream-plugin paths; Open, Severity 4, Effort M, WSJF 2.0). Symptom append on P005 with 4 in-session reproductions. P005 + P006 reported upstream as comments on `windyroad/agent-plugins#181` and `#126`. Earlier same-session refresh covered the 5 auto-transitions and re-rates for P002 / P005 / P006 / P007 / P008.
+> Last reviewed: 2026-06-02 **P007 verification pending** — fix-strategy option 1 applied in `test/server.test.mjs` (status-not-200 throw branches before body-shape assertions); JTBD-102 captured (proposed); awaiting CI run with non-200 upstream to verify the new diagnostic.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -9,7 +9,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 
 | WSJF | ID | Title | Severity | Status | Effort | Reported | Origin |
 |------|-----|-------|----------|--------|--------|----------|--------|
-| 18.0 | P007 | CI integration test cryptic JSON parse on upstream error | 9 | Known Error | S | 2026-05-14 | internal |
 | 16.0 | P008 | no automated em-dash detection | 8 | Known Error | S | 2026-05-14 | internal |
 | 10.0 | P005 | external-comms marker fails on empty session_id | 10 | Known Error | M | 2026-05-14 | internal |
 | 10.0 | P006 | capture-problem deferred refresh causes downstream halt | 10 | Known Error | M | 2026-05-14 | internal |
@@ -21,7 +20,9 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 
 Fix released, awaiting user verification (driven off the dual-tolerant glob `docs/problems/*.verifying.md docs/problems/verifying/*.md` per ADR-022 + RFC-002 migration window). Sorted by `Released date ASC` (oldest at row 1; same-day releases tiebreak by ID ASC). <!-- VQ-SORT-DIRECTION: oldest-first per ADR-022 --> `Likely verified?` column carries an evidence-first cell per P186, three canonical values: `yes - observed: <evidence>`, `no - not observed` (default for newly-released tickets), `no - observed regression`. <!-- LIKELY-VERIFIED-CELL-SHAPE: evidence-based per P186 --> Age is preserved separately via the `Released` column.
 
-_Queue empty._
+| ID | Title | Released | Fix summary | Likely verified? |
+|----|-------|----------|-------------|------------------|
+| P007 | CI integration test cryptic JSON parse on upstream error | 2026-06-02 | test/server.test.mjs branches on envelope.status before body-shape assertions; non-200 throws name the upstream tool + status + body verbatim. | no — not observed |
 
 ## Parked
 
@@ -34,5 +35,6 @@ _No parked tickets._
 
 - **P005 + P006** are upstream `@windyroad/itil` plugin bugs (not local code bugs). User direction at 2026-06-02 review: keep both Known Error in this repo's backlog AND report upstream via `/wr-itil:report-upstream`. The relevance evaluator's CLOSE-CANDIDATE-WITH-CAVEAT verdicts were false-positives (paths referenced live in the plugin source tree at `~/.claude/plugins/marketplaces/windyroad/`, not this repo). Both bugs fired again in this session: P005 blocked the P009 capture commit's external-comms gate; P006 is the deferred-README-refresh halt class that this review skill itself sidesteps because it owns the refresh.
 - **P002** root cause confirmed and reported upstream (addressr#456); the local static `REL_TO_TOOL` mapping in `src/server.mjs` is the documented workaround. Likelihood dropped 4 -> 3 at this review because the workaround is now shipped. Still a candidate for parking once the upstream issue is acknowledged; park manually when ready.
-- **P007 + P008** effort dropped M -> S after re-reading the fix-strategy bodies; both are single-surface fixes (one `if` branch in `test/server.test.mjs` for P007; a pre-commit `grep` hook for P008). Both auto-transitioned to Known Error and now rank top of the queue.
+- **P007** fix released 2026-06-02 (Known Error -> Verification Pending) — fix-strategy option 1 applied: both live-RapidAPI subtests in `test/server.test.mjs` now branch on `envelope.status` before body-shape assertions and throw `Error("Expected 200 from upstream <tool> but got <status>: <body>")` on non-200, surfacing the actual upstream HTTP status verbatim instead of the cryptic MCP-SDK JSON-parse stack. JTBD-102 (Diagnose Red CI Quickly) captured as proposed to document the motivating maintainer job. Awaiting CI verification next time the upstream returns non-200.
+- **P008** effort dropped M -> S after re-reading the fix-strategy body; a single pre-commit `grep` hook. Auto-transitioned to Known Error and now top of the dev-work queue after P007 moved to verification.
 - **P009** is fresh-captured (2026-06-02); deferred placeholders re-rated to honest values (Severity 9 / Effort M / WSJF 4.5). Investigation tasks pending: re-frame against P001's shipped search-* + the missing get-*-details, decide whether to extend `REL_TO_TOOL` for detail rels or build a separate get-tool pattern.
