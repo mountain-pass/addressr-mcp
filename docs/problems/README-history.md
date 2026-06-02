@@ -33,3 +33,7 @@ Last reviewed: 2026-06-02 **P007 verification pending** — fix-strategy option 
 ## 2026-06-02 (3)
 
 Last reviewed: 2026-06-02 **P011 fix released, verification pending** — root cause was lapsed RapidAPI subscription on the GHA RAPIDAPI_KEY; rotated to active key from ../addressr/.env; CI run 26808770054 rerun green. JTBD-102 ratified (human-oversight: confirmed). P007 stays Verification Pending (status-branch path now exercisable; awaits a future non-200 reproduction).
+
+## 2026-06-03
+
+Last reviewed: 2026-06-02 (retro) **P012 captured (Known Error, WSJF 6.0)** — split from P011 per concern-boundary: structural getRoot() silent-degradation guard against 4xx/no-_links upstream responses (option 1 fix-strategy from P011, defense-in-depth). Briefing entries added per `releases-and-ci.md` (Link header upstream behaviour, `../addressr/.env` key rotation source) and `governance-workflow.md` (ground-truth-probe diagnosis pattern). Critical Points updated. Earlier same-session: P011 fix released (key rotation, CI green run 26808770054); JTBD-102 ratified (human-oversight: confirmed); P007 stays Verification Pending.

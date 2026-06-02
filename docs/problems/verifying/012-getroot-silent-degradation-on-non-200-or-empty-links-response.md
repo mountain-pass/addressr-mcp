@@ -1,6 +1,6 @@
 # Problem 012: getRoot() silent-degradation on non-200 or empty-_links response
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-06-02
 **Priority**: 6 (Medium) - Impact: 2 (silent failure of upstream auth/subscription state cascades to cryptic test failures and wasted diagnosis time) x Likelihood: 3 (recurs whenever an auth/subscription/rate-limit-state change happens between deploys)
 **Origin**: internal
@@ -74,11 +74,19 @@ try {
 
 ### Investigation Tasks
 
-- [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] Decide between options 1 and 2 (recommendation: option 1)
-- [ ] Write the failing test against the empty-links case
-- [ ] Implement the throw + diagnostic warning
+- [x] Re-rate Priority and Effort at next /wr-itil:review-problems (held at 6.0 / S)
+- [x] Decide between options 1 and 2 (option 1 chosen — guard at call site surfaces RAPIDAPI_KEY + subscription vocabulary via existing catch + console.warn)
+- [x] Write the failing test against the empty-links case (`test/dynamic-tools.test.mjs` — `surfaces upstream cause when API root returns 4xx + JSON error body (P012)`)
+- [x] Implement the throw + diagnostic warning (`src/server.mjs` — throws on `allLinks.length === 0`, existing catch surfaces the message)
 - [ ] Confirm P007 status-branches still fire on the search-addresses subtest after the guard is in place (the guard only fires when registration produces zero search rels; subtests 2/3 still need P007's per-call status-branches for the running case)
+
+## Fix Released
+
+Awaiting release. Fix committed in this iteration; release deferred to orchestrator Step 6.5. Pre-release exercise evidence:
+
+- `node --test test/dynamic-tools.test.mjs` — all 11 tests pass, including the new `surfaces upstream cause when API root returns 4xx + JSON error body (P012)` case which asserts both fallback semantics (health + get-address registered, search-* skipped) and diagnostic vocabulary (`RAPIDAPI_KEY` + `subscription` in stderr).
+- Test confirmed RED before implementation, GREEN after — TDD discipline satisfied.
+- Architect review: PASS (no new ADR required; change clarifies ADR-002's stated failure handling).
 
 ## Related
 

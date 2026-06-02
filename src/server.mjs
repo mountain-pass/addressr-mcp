@@ -127,6 +127,14 @@ export async function createServer() {
   try {
     root = await getRoot();
     const allLinks = root.links();
+    if (allLinks.length === 0) {
+      const status = root.status ?? 'unknown';
+      throw new Error(
+        `Addressr API root returned no rels (HTTP ${status}); ` +
+          'check RAPIDAPI_KEY validity and subscription state at ' +
+          'https://rapidapi.com/addressr-addressr-default/api/addressr',
+      );
+    }
     advertisedRels = new Set(allLinks.map((l) => l.rel));
   } catch (err) {
     console.warn(

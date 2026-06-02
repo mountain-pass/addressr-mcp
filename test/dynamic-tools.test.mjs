@@ -5,6 +5,28 @@ import { createServer as createHttpServer } from 'node:http';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
+function startUnsubscribedMockApi() {
+  // Simulates the silent-degradation case from P012: upstream returns a valid
+  // 4xx JSON error body (no _links, no Link header). fetchLink() resolves
+  // successfully and root.links() returns [], which would silently degrade
+  // tool registration without the diagnostic guard.
+  return new Promise((resolve) => {
+    const server = createHttpServer((req, res) => {
+      if (req.url === '/' || req.url.startsWith('/?_rapidapi-cache-bust=')) {
+        res.writeHead(403, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'You are not subscribed to this API.' }));
+        return;
+      }
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'Not found' }));
+    });
+    server.listen(0, '127.0.0.1', () => {
+      const addr = server.address();
+      resolve({ server, url: `http://127.0.0.1:${addr.port}/` });
+    });
+  });
+}
+
 function startMockApi() {
   return new Promise((resolve) => {
     const server = createHttpServer((req, res) => {
@@ -96,6 +118,63 @@ describe('dynamic tool registration', () => {
       const toolNames = tools.map((t) => t.name);
       assert.ok(toolNames.includes('health'), 'Server should start with ADDRESSR_RAPIDAPI_KEY');
       assert.ok(toolNames.includes('get-address'), 'Server should register get-address with ADDRESSR_RAPIDAPI_KEY');
+    } finally {
+      await client.close();
+      transport.close();
+      mockApi.server.close();
+    }
+  });
+
+  it('surfaces upstream cause when API root returns 4xx + JSON error body (P012)', async () => {
+    const mockApi = await startUnsubscribedMockApi();
+
+    const client = new Client({ name: 'addressr-mcp-test', version: '1.0.0' });
+    const transport = new StdioClientTransport({
+      command: 'node',
+      args: ['src/server.mjs'],
+      env: {
+        ...process.env,
+        RAPIDAPI_KEY: 'dummy',
+        ADDRESSR_API_URL: mockApi.url,
+        ADDRESSR_API_HOST: 'addressr.p.rapidapi.com',
+      },
+      stderr: 'pipe',
+    });
+
+    const stderrChunks = [];
+    transport.stderr?.on('data', (chunk) => {
+      stderrChunks.push(chunk.toString());
+    });
+
+    await client.connect(transport);
+
+    try {
+      const { tools } = await client.listTools();
+      const toolNames = tools.map((t) => t.name);
+
+      assert.ok(toolNames.includes('health'), 'Should still register health on upstream 4xx');
+      assert.ok(
+        toolNames.includes('get-address'),
+        'Should still register get-address on upstream 4xx',
+      );
+      assert.ok(
+        !toolNames.includes('search-addresses'),
+        'Should NOT register search-addresses when upstream advertises no rels',
+      );
+
+      // Let stderr buffer flush
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      const stderr = stderrChunks.join('');
+      assert.match(
+        stderr,
+        /RAPIDAPI_KEY/,
+        `Diagnostic warning should name RAPIDAPI_KEY. Got stderr: ${stderr}`,
+      );
+      assert.match(
+        stderr,
+        /subscription/i,
+        `Diagnostic warning should mention subscription state. Got stderr: ${stderr}`,
+      );
     } finally {
       await client.close();
       transport.close();
