@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-03 **README reconciled** - 1 drift entry corrected: P015 added to WSJF Rankings (deferred placeholders Priority 3, Effort M, WSJF 1.5; pending re-rate at next /wr-itil:review-problems). Reconciliation contract per P118 + ADR-014 amended.
+> Last reviewed: 2026-06-03 **P009 closed as no longer relevant** - get-locality / get-postcode / get-state MCP tools already shipped in v1.0.0 (commit 88dda71, 2026-04-23; six weeks before P009 captured); ADR-079 Phase 1 evidence-shape `named-skill-or-feature-exists` cites src/server.mjs:220-265 + test/dynamic-tools.test.mjs (16/16 pass).
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -12,7 +12,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 10.0 | P005 | external-comms marker fails on empty session_id | 10 | Known Error | M | 2026-05-14 | internal |
 | 10.0 | P006 | capture-problem deferred refresh causes downstream halt | 10 | Known Error | M | 2026-05-14 | internal |
 | 9.0 | P002 | Addressr Link Relations Not Resolvable | 9 | Known Error | M | 2026-04-23 | internal |
-| 4.5 | P009 | MCP Missing Postcode, State, And Locality Endpoints | 9 | Open | M | 2026-06-02 | internal |
 | 4.0 | P010 | relevance evaluator false-positive on upstream-plugin paths | 4 | Known Error | M | 2026-06-02 | internal |
 | 4.0 | P013 | wr-jtbd:agent returns "Relevant files:" output without textual verdict | 8 | Open | M | 2026-06-03 | internal |
 | 3.0 | P014 | work-problems Step 4 classifier does not pre-detect ADR-074 substance-gate likelihood | 6 | Open | M | 2026-06-03 | internal |
@@ -44,4 +43,4 @@ _No parked tickets._
 - **P002** surfaced as CLOSE-CANDIDATE-WITH-CAVEAT at relevance-close pass (driver-child-ticket P001 closed). User direction at 2026-06-03 review: keep as Known Error. Upstream Addressr issue #456 is still open; the local `REL_TO_TOOL` mapping in `src/server.mjs` is the load-bearing workaround.
 - **P005 + P006** are upstream `@windyroad/itil` plugin bugs (not local code bugs). Prior user direction at 2026-06-02 review (verbatim memory): keep both Known Error in this repo's backlog AND report upstream via `/wr-itil:report-upstream`. Both upstream comments shipped 2026-06-02 (windyroad/agent-plugins#181 for P005, #126 for P006). The 2026-06-03 relevance-close pass routed P005 to CLOSE-CANDIDATE-WITH-CAVEAT (file-no-longer-exists false-positive class documented in P010) and P006 to KEEP-WITH-NOTE (closed driver P004 plus unbuilt SKILL/agent disambiguation); both stay Known Error per prior direction.
 - **P008** fix shipped 2026-06-03 (Known Error -> Verification Pending). `scripts/check-em-dashes.sh` + lint-staged `*.md` block + node:test suite. Awaiting user verification (manual: edit a `*.md` to contain U+2014, run `git commit`, observe the hook fail with `<file>:<lineno>:<content>` on stderr).
-- **P009** investigation tasks still pending (re-frame against P001's shipped search-* dynamic discovery, decide whether to extend `REL_TO_TOOL` for detail rels or build a separate get-tool pattern). Severity 9 / Effort M / Open / WSJF 4.5 stable from 2026-06-02 review.
+- **P009** closed 2026-06-03 as no longer relevant (ADR-079 Phase 1, evidence-shape `named-skill-or-feature-exists`). The three detail tools P009 asks for (get-locality, get-postcode, get-state) were already shipped in v1.0.0 (commit 88dda71, 2026-04-23 - six weeks before P009 captured). src/server.mjs:220-265 registers each tool following the HATEOAS-native URL-parameter pattern from get-address; test/dynamic-tools.test.mjs has passing behavioural tests for all three (16/16 unit tests pass); CHANGELOG.md v1.0.0 records the breaking-change release; live MCP session advertises mcp__addressr__get-{locality,postcode,state}. JTBD-007/008/009 ratify the three jobs.

@@ -1,6 +1,6 @@
 # Problem 009: MCP Missing Postcode, State, And Locality Endpoints
 
-**Status**: Open
+**Status**: Closed
 **Reported**: 2026-06-02
 **Priority**: 9 (Medium) - Impact: 3 x Likelihood: 3 (re-rated 2026-06-02: missing-capability gap; details unreachable as MCP tools, fall-back to direct API works)
 **Origin**: internal
@@ -52,3 +52,17 @@ The Addressr API provides endpoints for working with postcodes and states and lo
 - JTBD-007 / JTBD-008 / JTBD-009 — get-locality-details / get-postcode-details / get-state-details (not yet exposed as MCP tools).
 
 (captured via /wr-itil:capture-problem; expand at next investigation)
+
+## Closed as no longer relevant
+
+Closed 2026-06-03 at AFK iter dispatch per ADR-079 Phase 1 + Phase 2 evidence-shape `named-skill-or-feature-exists`. The three MCP tools the ticket asks for (get-locality, get-postcode, get-state) were already implemented, tested, and shipped BEFORE the ticket was captured. P009 captured 2026-06-02 against an inventory the user had not yet refreshed against the current src/server.mjs.
+
+Evidence (ADR-026 grounding):
+
+- **src/server.mjs lines 220-265** carry the three `server.tool('get-locality', ...)`, `server.tool('get-postcode', ...)`, `server.tool('get-state', ...)` registrations. Each follows the same HATEOAS-native pattern as get-address (URL parameter, fetchLink, envelope response) shipped in v1.0.0 (commit c6da43d).
+- **commit 88dda71** ("feat: add detail tools for locality, postcode, and state", 2026-04-23) is the first-introduction commit, predating P009's 2026-06-02 capture by six weeks.
+- **test/dynamic-tools.test.mjs** has passing behavioural tests for each: `get-locality accepts url parameter and returns envelope` (line 330), `get-postcode accepts url parameter and returns envelope` (line 364), `get-state accepts url parameter and returns envelope` (line 438). Full suite: 16/16 pass at this commit.
+- **CHANGELOG.md v1.0.0** records the three detail tools as part of the HATEOAS-native breaking-change release; @mountainpass/addressr-mcp@1.0.4 (current) carries them forward.
+- **Live MCP session** advertises mcp__addressr__get-locality, mcp__addressr__get-postcode, mcp__addressr__get-state alongside the search-* tools.
+
+JTBD-007/008/009 ratify the three detail jobs and were authored alongside the implementation commit. No outstanding work; no scope-expansion needed.
