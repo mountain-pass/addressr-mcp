@@ -2,9 +2,10 @@
 
 **Status**: Open
 **Reported**: 2026-06-03
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 6 (Medium) - Impact: 2 x Likelihood: 3 (re-rated 2026-06-03 review: developer workflow disruption (level 2 Minor: wasted AFK iter cost $7.48 / 948s observed, CI/published package unaffected); subclass-conditional Likelihood 3 Possible - structurally guaranteed for AFK iters dispatched on JTBD-anchored tickets where referenced JTBDs/personas/ADRs all lack `human-oversight: confirmed`, but the recent JTBD confirmation pass (commit c7cdbf9) reduced the unconfirmed-artefact population)
 **Origin**: internal
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Effort**: M (orchestrator-side pre-dispatch grep classifier in /wr-itil:work-problems Step 4 + report upstream; canonical fix lives in @windyroad/itil work-problems SKILL.md)
+**WSJF**: 3.0
 **Type**: technical
 
 ## Description

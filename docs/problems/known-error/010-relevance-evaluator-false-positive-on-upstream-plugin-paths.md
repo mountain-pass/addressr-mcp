@@ -1,11 +1,11 @@
 # Problem 010: relevance evaluator false-positive on upstream-plugin paths
 
-**Status**: Open
+**Status**: Known Error
 **Reported**: 2026-06-02
 **Priority**: 4 (Low) - Impact: 2 x Likelihood: 2 (re-rated 2026-06-02 capture: surface-batch-confirm catches the false-positives, user dispositions per batch)
 **Origin**: internal
 **Effort**: M
-**WSJF**: 2.0
+**WSJF**: 4.0 (auto-transition Open -> Known Error at 2026-06-03 review: confirmed root cause documented + workaround live via surface-batch-confirm)
 **Type**: technical
 
 ## Description

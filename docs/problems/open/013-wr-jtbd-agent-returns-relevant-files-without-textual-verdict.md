@@ -2,9 +2,10 @@
 
 **Status**: Open
 **Reported**: 2026-06-03
-**Priority**: 3 (Medium) — Impact: 3 x Likelihood: 1 (deferred — re-rate at next /wr-itil:review-problems)
+**Priority**: 8 (Medium) - Impact: 2 x Likelihood: 4 (re-rated 2026-06-03 review: developer workflow disruption (level 2 Minor: agent re-delegation wastes a turn per occurrence, AFK iters stall on marker-not-written branch, CI/published package unaffected); observed 2/2 invocations in single iter with consistent files-only body shape - structural agent-template defect)
 **Origin**: internal
-**Effort**: M (deferred — re-rate at next /wr-itil:review-problems)
+**Effort**: M (investigation + wr-jtbd:agent definition inspection upstream + side-by-side comparison with wr-architect:agent + report upstream to @windyroad/agent-plugins)
+**WSJF**: 4.0
 **Type**: technical
 
 ## Description

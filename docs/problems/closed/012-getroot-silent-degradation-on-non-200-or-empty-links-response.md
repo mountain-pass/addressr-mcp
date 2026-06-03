@@ -1,7 +1,8 @@
 # Problem 012: getRoot() silent-degradation on non-200 or empty-_links response
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-06-02
+**Closed**: 2026-06-03 (verified at /wr-itil:review-problems 2026-06-03: in-session unit-test `surfaces upstream cause when API root returns 4xx + JSON error body (P012)` in test/dynamic-tools.test.mjs confirmed RED -> GREEN with diagnostic vocabulary `RAPIDAPI_KEY` + `subscription` in stderr; all 11 unit tests pass)
 **Priority**: 6 (Medium) - Impact: 2 (silent failure of upstream auth/subscription state cascades to cryptic test failures and wasted diagnosis time) x Likelihood: 3 (recurs whenever an auth/subscription/rate-limit-state change happens between deploys)
 **Origin**: internal
 **Effort**: S (single function change in `src/server.mjs:127-130` + 1-2 unit test cases stubbing the upstream-root response shape)
