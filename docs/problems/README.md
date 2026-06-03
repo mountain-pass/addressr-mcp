@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-03 **P008 verification pending** - fix-strategy option 1 shipped: `scripts/check-em-dashes.sh` greps staged `*.md` for U+2014 via lint-staged `*.md` block, node:test suite covers 4 cases (clean / dirty / no-args / mixed-multi), `--no-verify` escape hatch preserved per JTBD-103 maintainer persona.
+> Last reviewed: 2026-06-03 **README reconciled** - 1 drift entry corrected: P015 added to WSJF Rankings (deferred placeholders Priority 3, Effort M, WSJF 1.5; pending re-rate at next /wr-itil:review-problems). Reconciliation contract per P118 + ADR-014 amended.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -16,6 +16,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 4.0 | P010 | relevance evaluator false-positive on upstream-plugin paths | 4 | Known Error | M | 2026-06-02 | internal |
 | 4.0 | P013 | wr-jtbd:agent returns "Relevant files:" output without textual verdict | 8 | Open | M | 2026-06-03 | internal |
 | 3.0 | P014 | work-problems Step 4 classifier does not pre-detect ADR-074 substance-gate likelihood | 6 | Open | M | 2026-06-03 | internal |
+| 1.5 | P015 | npm publish fails with E404 - no NPM_TOKEN in GHA | 3 | Open | M | 2026-06-03 | internal |
 
 ## Verification Queue
 
