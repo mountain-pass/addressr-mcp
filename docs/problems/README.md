@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-03 **P015 verification pending** - structural Layer-2 fix shipped (acute Layer-1 already resolved this session via secret rotation): `scripts/check-npm-token.sh` exits 1 with `::error::` GHA annotation naming NPM_TOKEN + remediation when `NODE_AUTH_TOKEN` empty; wired into `.github/workflows/release.yml` BEFORE `changesets/action@v1`; `test/check-npm-token.test.mjs` covers empty / unset / present / no-token-leak (4/4 pass). Architect verdict: no ADR for Option A; OIDC trusted-publishing (Option B) warrants its own ADR if pursued. JTBD trace: JTBD-101 + JTBD-102.
+> Last reviewed: 2026-06-03 **P008 closed** - em-dash detection hook verified + closed on evidence (prior-session README cell `yes - observed` + iter-3 re-ran 5/5 tests green + exercised the hook live via lint-staged during commit 2f9edd2). Also this session: RAPIDAPI_KEY GHA secret rotated to active sibling key (P011 recovery), build-and-test CI green.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -23,7 +23,6 @@ Fix released, awaiting user verification (driven off the dual-tolerant glob `doc
 | ID | Title | Released | Fix summary | Likely verified? |
 |----|-------|----------|-------------|------------------|
 | P007 | CI integration test cryptic JSON parse on upstream error | 2026-06-02 | test/server.test.mjs branches on envelope.status before body-shape assertions; non-200 throws name the upstream tool + status + body verbatim. | no - not observed (verified at 2026-06-03 review: no non-200 CI cycle has run since fix shipped in commit 0fbdb97; all subsequent runs green) |
-| P008 | no automated em-dash detection | 2026-06-03 | scripts/check-em-dashes.sh wired into lint-staged `*.md`; greps staged markdown for U+2014; node:test covers 4 cases (clean / dirty / no-args / mixed-multi). | no - observed: 4/4 node:test pass + smoke `/tmp/hook-smoke/` exits 1 on dirty.md with line-numbered stderr |
 | P015 | npm publish fails with E404 - no NPM_TOKEN in GHA | 2026-06-03 | scripts/check-npm-token.sh fails fast with `::error::` GHA annotation when NODE_AUTH_TOKEN empty; wired into release.yml BEFORE changesets/action@v1; test/check-npm-token.test.mjs covers empty / unset / present / no-token-leak. | no - observed: 4/4 node:test pass; happy-path branch will exercise on next release with current secret set; empty-token branch verifiable by temporarily unsetting NPM_TOKEN and observing the named step fail loudly |
 
 ## Parked

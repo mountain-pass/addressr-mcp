@@ -1,7 +1,8 @@
 # Problem 008: no automated em-dash detection
 
-**Status**: Verification Pending
+**Status**: Closed
 **Reported**: 2026-05-14
+**Closed**: 2026-06-03 (user-confirmed at /wr-itil:work-problems Step 6.5 halt batch. Evidence: prior-session README cell `yes - observed: 4/4 node:test pass + smoke /tmp/hook-smoke/ exits 1 on dirty.md with line-numbered stderr`; iter-3 (2026-06-03) additionally re-ran 5/5 em-dash tests green AND exercised the hook live via lint-staged on staged docs/problems/*.md during commit 2f9edd2. Fix shipped in commit 4da99ff: scripts/check-em-dashes.sh + lint-staged `*.md` block + node:test suite, `--no-verify` escape hatch preserved.)
 **Priority**: 8 (Medium) - Impact: 2 x Likelihood: 4 (re-rated 2026-06-02: fires per non-trivial doc edit; LLM-authoring tell)
 **Origin**: internal
 **Effort**: S (re-rated 2026-06-02: M -> S; pre-commit hook + `grep -rP '\x{2014}'` is a small surface per body)
