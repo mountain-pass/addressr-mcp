@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-03 **/wr-itil:review-problems** - P012 closed (verified in-session unit test); P010 auto-transition Open -> Known Error (root cause + workaround documented, WSJF 2.0 -> 4.0); P013 re-rated from deferred placeholders (Severity 3 -> 8, Effort M, WSJF 1.5 -> 4.0); P014 re-rated from deferred placeholders (Severity 3 -> 6, Effort M, WSJF 1.5 -> 3.0); P007 stays Verification Pending (no non-200 CI cycle since fix shipped); P002 / P005 kept after relevance-close caveat surface (upstream issues open, workarounds live).
+> Last reviewed: 2026-06-03 **P008 verification pending** - fix-strategy option 1 shipped: `scripts/check-em-dashes.sh` greps staged `*.md` for U+2014 via lint-staged `*.md` block, node:test suite covers 4 cases (clean / dirty / no-args / mixed-multi), `--no-verify` escape hatch preserved per JTBD-103 maintainer persona.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -9,7 +9,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 
 | WSJF | ID | Title | Severity | Status | Effort | Reported | Origin |
 |------|-----|-------|----------|--------|--------|----------|--------|
-| 16.0 | P008 | no automated em-dash detection | 8 | Known Error | S | 2026-05-14 | internal |
 | 10.0 | P005 | external-comms marker fails on empty session_id | 10 | Known Error | M | 2026-05-14 | internal |
 | 10.0 | P006 | capture-problem deferred refresh causes downstream halt | 10 | Known Error | M | 2026-05-14 | internal |
 | 9.0 | P002 | Addressr Link Relations Not Resolvable | 9 | Known Error | M | 2026-04-23 | internal |
@@ -25,6 +24,7 @@ Fix released, awaiting user verification (driven off the dual-tolerant glob `doc
 | ID | Title | Released | Fix summary | Likely verified? |
 |----|-------|----------|-------------|------------------|
 | P007 | CI integration test cryptic JSON parse on upstream error | 2026-06-02 | test/server.test.mjs branches on envelope.status before body-shape assertions; non-200 throws name the upstream tool + status + body verbatim. | no - not observed (verified at 2026-06-03 review: no non-200 CI cycle has run since fix shipped in commit 0fbdb97; all subsequent runs green) |
+| P008 | no automated em-dash detection | 2026-06-03 | scripts/check-em-dashes.sh wired into lint-staged `*.md`; greps staged markdown for U+2014; node:test covers 4 cases (clean / dirty / no-args / mixed-multi). | no - observed: 4/4 node:test pass + smoke `/tmp/hook-smoke/` exits 1 on dirty.md with line-numbered stderr |
 
 ## Parked
 
@@ -42,5 +42,5 @@ _No parked tickets._
 - **P007** stays Verification Pending. CI run history since fix commit `0fbdb97` (2026-06-02): all green; no upstream non-200 has been observed in the workflow log since the new diagnostic message shipped. Verification fires on the next CI cycle that catches an actual upstream 4xx/5xx.
 - **P002** surfaced as CLOSE-CANDIDATE-WITH-CAVEAT at relevance-close pass (driver-child-ticket P001 closed). User direction at 2026-06-03 review: keep as Known Error. Upstream Addressr issue #456 is still open; the local `REL_TO_TOOL` mapping in `src/server.mjs` is the load-bearing workaround.
 - **P005 + P006** are upstream `@windyroad/itil` plugin bugs (not local code bugs). Prior user direction at 2026-06-02 review (verbatim memory): keep both Known Error in this repo's backlog AND report upstream via `/wr-itil:report-upstream`. Both upstream comments shipped 2026-06-02 (windyroad/agent-plugins#181 for P005, #126 for P006). The 2026-06-03 relevance-close pass routed P005 to CLOSE-CANDIDATE-WITH-CAVEAT (file-no-longer-exists false-positive class documented in P010) and P006 to KEEP-WITH-NOTE (closed driver P004 plus unbuilt SKILL/agent disambiguation); both stay Known Error per prior direction.
-- **P008** stays top of the dev-work queue at WSJF 16.0 (Severity 8 / Effort S / Known Error multiplier 2.0). Fix-strategy option 1 (pre-commit hook + `grep -P '\x{2014}'`) is the small surface; ship next.
+- **P008** fix shipped 2026-06-03 (Known Error -> Verification Pending). `scripts/check-em-dashes.sh` + lint-staged `*.md` block + node:test suite. Awaiting user verification (manual: edit a `*.md` to contain U+2014, run `git commit`, observe the hook fail with `<file>:<lineno>:<content>` on stderr).
 - **P009** investigation tasks still pending (re-frame against P001's shipped search-* dynamic discovery, decide whether to extend `REL_TO_TOOL` for detail rels or build a separate get-tool pattern). Severity 9 / Effort M / Open / WSJF 4.5 stable from 2026-06-02 review.

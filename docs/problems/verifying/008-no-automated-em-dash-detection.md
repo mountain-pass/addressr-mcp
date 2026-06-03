@@ -1,6 +1,6 @@
 # Problem 008: no automated em-dash detection
 
-**Status**: Known Error
+**Status**: Verification Pending
 **Reported**: 2026-05-14
 **Priority**: 8 (Medium) - Impact: 2 x Likelihood: 4 (re-rated 2026-06-02: fires per non-trivial doc edit; LLM-authoring tell)
 **Origin**: internal
@@ -10,7 +10,7 @@
 
 ## Description
 
-The user has a documented stylistic preference against em-dashes (`—`, U+2014) in user-facing prose (README, ADRs, problem tickets, commit messages, GitHub issue/PR bodies, changeset bodies). The preference is captured as a project-level feedback memory at `~/.claude/projects/-Users-tomhoward-Projects-addressr-mcp/memory/feedback_no_em_dashes.md` after the user flagged em-dashes during P004's verification.
+The user has a documented stylistic preference against em-dashes (U+2014) in user-facing prose (README, ADRs, problem tickets, commit messages, GitHub issue/PR bodies, changeset bodies). The preference is captured as a project-level feedback memory at `~/.claude/projects/-Users-tomhoward-Projects-addressr-mcp/memory/feedback_no_em_dashes.md` after the user flagged em-dashes during P004's verification.
 
 The memory is loaded on every assistant session start, so future assistant-authored prose should avoid em-dashes by default. But there is no automated detection for em-dashes that slip through (assistant-authored or human-edited), and there is no pre-commit or CI gate that surfaces them.
 
@@ -24,7 +24,7 @@ This session demonstrated the cost: 17 em-dashes accumulated in `README.md` (som
 
 ## Workaround
 
-After authoring or editing user-facing prose, run `grep -rnP '\x{2014}' README.md docs/` (or wherever the change lands) and replace each occurrence. The Edit tool's `replace_all` with ` — ` to ` - ` covers ~80% of cases mechanically; the remainder need per-occurrence judgement to read naturally.
+After authoring or editing user-facing prose, run `grep -rnP '\x{2014}' README.md docs/` (or wherever the change lands) and replace each occurrence. The Edit tool's `replace_all` with U+2014-surrounded-by-spaces to hyphen-surrounded-by-spaces covers ~80% of cases mechanically; the remainder need per-occurrence judgement to read naturally.
 
 ## Impact Assessment
 
@@ -74,3 +74,17 @@ Option 1 is the natural fit: zero CI cost, surfaces at the moment the em-dash wo
 - captured via /wr-itil:capture-problem during /wr-retrospective:run-retro 2026-05-14
 - ~/.claude/projects/-Users-tomhoward-Projects-addressr-mcp/memory/feedback_no_em_dashes.md
 - commit `e271601` (the 17-em-dash cleanup that triggered this capture)
+
+## Fix Released
+
+Released 2026-06-03 in the AFK work-problems iter for P008. Fix strategy option 1 (pre-commit hook) shipped:
+
+- `scripts/check-em-dashes.sh` greps each passed file for U+2014 via the literal UTF-8 byte sequence (BSD-grep compatible, no `-P` flag dependency); prints `<file>:<lineno>:<content>` to stderr on match; exits 1 if any match, 0 if all clean, 0 if zero args.
+- `package.json` lint-staged block extended: `"*.md": "bash scripts/check-em-dashes.sh"` runs alongside the existing `prettier --write` on staged markdown.
+- `test/check-em-dashes.test.mjs` covers the happy path (clean file -> 0), the failure path (em-dash -> 1 + line-numbered stderr), the no-args path (lint-staged glob matched nothing -> 0), the mixed-multi-file path (only dirty files surface in stderr), and the `README-history.md` skip path (forward-chronology archive of pre-hook prose is preserved verbatim per P134).
+- `package.json` `test:unit` widened to glob both unit test files so the new test runs under `npm test` and CI.
+- Override: `git commit --no-verify` per JTBD-103 persona escape hatch.
+
+Exercised successfully in-session: ran `node --test test/check-em-dashes.test.mjs` -> 5/5 pass. Smoke test in `/tmp/hook-smoke/` confirms clean.md exits 0 and dirty.md exits 1 with `dirty.md:3:Has em-dash: U+2014` on stderr. Full unit suite (`npm run test:unit`) green at 15/15.
+
+Awaiting user verification.

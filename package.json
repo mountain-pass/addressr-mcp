@@ -20,7 +20,7 @@
   },
   "scripts": {
     "test": "npm run test:unit && npm run test:integration",
-    "test:unit": "node --test test/dynamic-tools.test.mjs",
+    "test:unit": "node --test 'test/dynamic-tools.test.mjs' 'test/check-em-dashes.test.mjs'",
     "test:integration": "node --test test/server.test.mjs",
     "lint": "eslint .",
     "pre-commit": "lint-staged",
@@ -45,7 +45,8 @@
   },
   "lint-staged": {
     "*.{js,mjs}": "eslint --fix",
-    "*.{json,css,md}": "prettier --write"
+    "*.{json,css,md}": "prettier --write",
+    "*.md": "bash scripts/check-em-dashes.sh"
   },
   "publishConfig": {
     "access": "public"
