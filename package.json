@@ -20,7 +20,7 @@
   },
   "scripts": {
     "test": "npm run test:unit && npm run test:integration",
-    "test:unit": "node --test 'test/dynamic-tools.test.mjs' 'test/check-em-dashes.test.mjs'",
+    "test:unit": "node --test 'test/dynamic-tools.test.mjs' 'test/check-em-dashes.test.mjs' 'test/check-npm-token.test.mjs'",
     "test:integration": "node --test test/server.test.mjs",
     "lint": "eslint .",
     "pre-commit": "lint-staged",

@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-03 **P009 closed as no longer relevant** - get-locality / get-postcode / get-state MCP tools already shipped in v1.0.0 (commit 88dda71, 2026-04-23; six weeks before P009 captured); ADR-079 Phase 1 evidence-shape `named-skill-or-feature-exists` cites src/server.mjs:220-265 + test/dynamic-tools.test.mjs (16/16 pass).
+> Last reviewed: 2026-06-03 **P015 verification pending** - structural Layer-2 fix shipped (acute Layer-1 already resolved this session via secret rotation): `scripts/check-npm-token.sh` exits 1 with `::error::` GHA annotation naming NPM_TOKEN + remediation when `NODE_AUTH_TOKEN` empty; wired into `.github/workflows/release.yml` BEFORE `changesets/action@v1`; `test/check-npm-token.test.mjs` covers empty / unset / present / no-token-leak (4/4 pass). Architect verdict: no ADR for Option A; OIDC trusted-publishing (Option B) warrants its own ADR if pursued. JTBD trace: JTBD-101 + JTBD-102.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -15,7 +15,6 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 4.0 | P010 | relevance evaluator false-positive on upstream-plugin paths | 4 | Known Error | M | 2026-06-02 | internal |
 | 4.0 | P013 | wr-jtbd:agent returns "Relevant files:" output without textual verdict | 8 | Open | M | 2026-06-03 | internal |
 | 3.0 | P014 | work-problems Step 4 classifier does not pre-detect ADR-074 substance-gate likelihood | 6 | Open | M | 2026-06-03 | internal |
-| 1.5 | P015 | npm publish fails with E404 - no NPM_TOKEN in GHA | 3 | Open | M | 2026-06-03 | internal |
 
 ## Verification Queue
 
@@ -25,6 +24,7 @@ Fix released, awaiting user verification (driven off the dual-tolerant glob `doc
 |----|-------|----------|-------------|------------------|
 | P007 | CI integration test cryptic JSON parse on upstream error | 2026-06-02 | test/server.test.mjs branches on envelope.status before body-shape assertions; non-200 throws name the upstream tool + status + body verbatim. | no - not observed (verified at 2026-06-03 review: no non-200 CI cycle has run since fix shipped in commit 0fbdb97; all subsequent runs green) |
 | P008 | no automated em-dash detection | 2026-06-03 | scripts/check-em-dashes.sh wired into lint-staged `*.md`; greps staged markdown for U+2014; node:test covers 4 cases (clean / dirty / no-args / mixed-multi). | no - observed: 4/4 node:test pass + smoke `/tmp/hook-smoke/` exits 1 on dirty.md with line-numbered stderr |
+| P015 | npm publish fails with E404 - no NPM_TOKEN in GHA | 2026-06-03 | scripts/check-npm-token.sh fails fast with `::error::` GHA annotation when NODE_AUTH_TOKEN empty; wired into release.yml BEFORE changesets/action@v1; test/check-npm-token.test.mjs covers empty / unset / present / no-token-leak. | no - observed: 4/4 node:test pass; happy-path branch will exercise on next release with current secret set; empty-token branch verifiable by temporarily unsetting NPM_TOKEN and observing the named step fail loudly |
 
 ## Parked
 

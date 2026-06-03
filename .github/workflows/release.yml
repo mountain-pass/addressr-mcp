@@ -37,6 +37,14 @@ jobs:
           node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
+      # @jtbd JTBD-101, JTBD-102
+      # Fail-fast guard: surface a missing/empty NPM_TOKEN as a clear CI error
+      # before changesets/action@v1 silently falls back to unauthenticated
+      # publish and produces a confusing E404 (P015).
+      - name: Check NPM_TOKEN is present
+        run: bash scripts/check-npm-token.sh
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Create Release PR or Publish
         id: changesets
         uses: changesets/action@v1

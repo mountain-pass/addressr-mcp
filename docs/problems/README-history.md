@@ -49,3 +49,5 @@ Last reviewed: 2026-06-03 **/wr-itil:review-problems** - P012 closed (verified i
 Last reviewed: 2026-06-03 **P008 verification pending** - fix-strategy option 1 shipped: `scripts/check-em-dashes.sh` greps staged `*.md` for U+2014 via lint-staged `*.md` block, node:test suite covers 4 cases (clean / dirty / no-args / mixed-multi), `--no-verify` escape hatch preserved per JTBD-103 maintainer persona.
 
 Last reviewed: 2026-06-03 **README reconciled** - 1 drift entry corrected: P015 added to WSJF Rankings (deferred placeholders Priority 3, Effort M, WSJF 1.5; pending re-rate at next /wr-itil:review-problems). Reconciliation contract per P118 + ADR-014 amended.
+
+Last reviewed: 2026-06-03 **P009 closed as no longer relevant** - get-locality / get-postcode / get-state MCP tools already shipped in v1.0.0 (commit 88dda71, 2026-04-23; six weeks before P009 captured); ADR-079 Phase 1 evidence-shape `named-skill-or-feature-exists` cites src/server.mjs:220-265 + test/dynamic-tools.test.mjs (16/16 pass).
