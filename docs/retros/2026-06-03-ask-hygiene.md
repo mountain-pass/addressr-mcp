@@ -1,3 +1,24 @@
+# Ask Hygiene - 2026-06-03 (session-level retro: interactive review-problems + AFK work-problems halt)
+
+Retro context: orchestrator main turn from `/wr-itil:work-problems` halt path. Interactive `/wr-itil:review-problems` ran first this session, then AFK loop iter 1 (P008) shipped successfully, then Step 6.5 release-cadence drain hit npm publish E404 halt (P015 captured).
+
+| Call # | Header | Classification | Citation |
+|--------|--------|----------------|----------|
+| 1 | Verify P007 | direction | Gap: substance-confirm-before-build (ADR-074) - only the user knows whether the diagnostic message has been observed in a real CI red cycle |
+| 2 | Verify P012 | direction | Gap: substance-confirm-before-build (ADR-074) - verification disposition is user authority over close decision |
+| 3 | P002 disposition | direction | Gap: genuine 2-option direction-setting on disposition (Keep KE / Park / Close) - framework cannot resolve user's stance on local-workaround-vs-upstream-fix balance |
+
+**Lazy count: 0**
+**Direction count: 3**
+**Override count: 0**
+**Silent-framework count: 0**
+**Taste count: 0**
+**Correction-followup count: 0**
+
+All 3 questions were direction-setting substance-confirm asks per ADR-074 exclusion (NOT lazy). The /wr-itil:review-problems Step 4 verification prompt is the canonical surface where user authority over verification disposition fires. Single AskUserQuestion call containing all 3 questions (ADR-013 Rule 1 batched cap respected).
+
+---
+
 # Ask Hygiene - 2026-06-03 (AFK iter on P008)
 
 Retro context: AFK `/wr-itil:work-problems` iteration on P008 (no automated em-dash detection).
