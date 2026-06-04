@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-03 **P008 closed** - em-dash detection hook verified + closed on evidence (prior-session README cell `yes - observed` + iter-3 re-ran 5/5 tests green + exercised the hook live via lint-staged during commit 2f9edd2). Also this session: RAPIDAPI_KEY GHA secret rotated to active sibling key (P011 recovery), build-and-test CI green.
+> Last reviewed: 2026-06-03 **P016 captured** (session-retro gate b) - em-dash hook (P008) conflicts with /wr-architect:capture-adr template + decisions-compendium generator, both of which emit U+2014. ADR-006 commit hit it; reconciled here. AFK loop closing: P009 closed, P015 shipped (verifying), P008 closed, ADR-006 captured, npm 1.0.4 + RAPIDAPI_KEY recovered.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -15,6 +15,7 @@ Dev-work queue only. Verification Pending (`.verifying.md`, WSJF multiplier 0) a
 | 4.0 | P010 | relevance evaluator false-positive on upstream-plugin paths | 4 | Known Error | M | 2026-06-02 | internal |
 | 4.0 | P013 | wr-jtbd:agent returns "Relevant files:" output without textual verdict | 8 | Open | M | 2026-06-03 | internal |
 | 3.0 | P014 | work-problems Step 4 classifier does not pre-detect ADR-074 substance-gate likelihood | 6 | Open | M | 2026-06-03 | internal |
+| 1.5 | P016 | em-dash pre-commit hook blocks architect-tooling output | 3 | Open | M | 2026-06-03 | internal |
 
 ## Verification Queue
 
