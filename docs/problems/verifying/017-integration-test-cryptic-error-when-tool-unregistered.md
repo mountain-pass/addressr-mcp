@@ -1,6 +1,6 @@
 # Problem 017: integration test cryptic error when search tool unregistered (getRoot-degraded path)
 
-**Status**: Open
+**Status**: Verification Pending
 **Reported**: 2026-06-03
 **Priority**: 6 (Medium) - Impact: 3 x Likelihood: 2 (sibling of P007; fires only when getRoot degrades AND a search-* tool is then called - narrower than P007's registered-tool path but same misleading-surface class)
 **Origin**: internal
@@ -45,6 +45,17 @@ Test-level diagnostic guard (extends P007's pattern to the unregistered-tool pat
 
 - [x] Confirm the failure is upstream of P007's status-branch (it is - `JSON.parse` throws before line 85)
 - [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
+
+## Fix Released
+
+Fixed 2026-06-03 (same session as capture). Extracted `parseEnvelopeOrExplain(text, toolName)` to `test/helpers/parse-envelope.mjs`: when the tool-call content is not a JSON envelope (does not start with `{` or `[` - the MCP "tool not found" error-string shape), it throws a message naming the cause ("tool not registered because getRoot() advertised no rels - check RAPIDAPI_KEY subscription state; see P012") instead of letting `JSON.parse` throw the cryptic `Unexpected token 'M'` stack. Wired into `test/server.test.mjs` subtests 2/3 + the health subtest (replacing the bare `JSON.parse` calls). P007's `envelope.status !== 200` branch still handles the registered-tool non-200 case downstream - the two guards compose.
+
+- TDD: `test/parse-envelope.test.mjs` (4 cases: valid object envelope / valid array envelope / MCP-error-string names the cause + no cryptic stack / empty text). Confirmed RED before the helper existed, GREEN after.
+- `package.json` `test:unit` glob extended to include `test/parse-envelope.test.mjs`.
+- Full suite green: 24/24 unit tests pass; integration skips locally without a key (no syntax regression); eslint clean.
+- No release vehicle needed - test-infrastructure only; `test/` and `scripts/` are outside the npm `files:` allowlist so the published package is unchanged (no changeset).
+
+Awaiting production verification: the next CI cycle that hits a getRoot-degraded state (upstream 403 / rel drop) should now show the named cause in the workflow log instead of `Unexpected token 'M', "MCP error"`.
 
 ## Dependencies
 

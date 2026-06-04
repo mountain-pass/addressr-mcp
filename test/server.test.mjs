@@ -2,6 +2,7 @@ import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { parseEnvelopeOrExplain } from './helpers/parse-envelope.mjs';
 
 // Load .env if present so RAPIDAPI_KEY can be hydrated locally per ADR-005
 try {
@@ -79,7 +80,7 @@ describe(
       const text = result.content.find((c) => c.type === 'text')?.text;
       assert.ok(text, 'Should have text content');
 
-      const envelope = JSON.parse(text);
+      const envelope = parseEnvelopeOrExplain(text, 'search-addresses');
       assert.strictEqual(typeof envelope.status, 'number', 'envelope.status should be a number');
       // P007: surface upstream status verbatim so CI red runs name the API state, not the SDK's JSON-parse stack.
       if (envelope.status !== 200) {
@@ -103,8 +104,9 @@ describe(
         name: 'search-addresses',
         arguments: { q: '1 george st sydney' },
       });
-      const searchEnvelope = JSON.parse(
+      const searchEnvelope = parseEnvelopeOrExplain(
         searchResult.content.find((c) => c.type === 'text').text,
+        'search-addresses',
       );
       // P007: surface upstream status verbatim so CI red runs name the API state, not the SDK's JSON-parse stack.
       if (searchEnvelope.status !== 200) {
@@ -128,7 +130,7 @@ describe(
       const detailText = detailResult.content.find((c) => c.type === 'text')?.text;
       assert.ok(detailText, 'Should have detail content');
 
-      const detailEnvelope = JSON.parse(detailText);
+      const detailEnvelope = parseEnvelopeOrExplain(detailText, 'get-address');
       // P007: surface upstream status verbatim so CI red runs name the API state, not the SDK's JSON-parse stack.
       if (detailEnvelope.status !== 200) {
         throw new Error(
@@ -146,7 +148,7 @@ describe(
       });
       const text = result.content.find((c) => c.type === 'text')?.text;
       assert.ok(text, 'Should have text content');
-      const envelope = JSON.parse(text);
+      const envelope = parseEnvelopeOrExplain(text, 'health');
       assert.strictEqual(typeof envelope.status, 'number', 'health envelope.status should be a number');
       assert.ok(envelope.body, 'health envelope.body should be present');
     });

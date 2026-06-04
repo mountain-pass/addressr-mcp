@@ -1,6 +1,6 @@
 # Problem Backlog
 
-> Last reviewed: 2026-06-03 **P016 captured** (session-retro gate b) - em-dash hook (P008) conflicts with /wr-architect:capture-adr template + decisions-compendium generator, both of which emit U+2014. ADR-006 commit hit it; reconciled here. AFK loop closing: P009 closed, P015 shipped (verifying), P008 closed, ADR-006 captured, npm 1.0.4 + RAPIDAPI_KEY recovered.
+> Last reviewed: 2026-06-03 **P017 verification pending** - test diagnostic guard (test/helpers/parse-envelope.mjs) names the cause when a search-* tool is unregistered (getRoot-degraded path) instead of the cryptic `Unexpected token 'M'`; sibling of P007, composes with P012. TDD 4 new cases RED->GREEN; 24/24 unit pass. Surfaced live from the RAPIDAPI_KEY lapse this session.
 > Run `/wr-itil:review-problems` to refresh WSJF rankings.
 
 ## WSJF Rankings
@@ -25,6 +25,7 @@ Fix released, awaiting user verification (driven off the dual-tolerant glob `doc
 |----|-------|----------|-------------|------------------|
 | P007 | CI integration test cryptic JSON parse on upstream error | 2026-06-02 | test/server.test.mjs branches on envelope.status before body-shape assertions; non-200 throws name the upstream tool + status + body verbatim. | no - not observed (verified at 2026-06-03 review: no non-200 CI cycle has run since fix shipped in commit 0fbdb97; all subsequent runs green) |
 | P015 | npm publish fails with E404 - no NPM_TOKEN in GHA | 2026-06-03 | scripts/check-npm-token.sh fails fast with `::error::` GHA annotation when NODE_AUTH_TOKEN empty; wired into release.yml BEFORE changesets/action@v1; test/check-npm-token.test.mjs covers empty / unset / present / no-token-leak. | no - observed: 4/4 node:test pass; happy-path branch will exercise on next release with current secret set; empty-token branch verifiable by temporarily unsetting NPM_TOKEN and observing the named step fail loudly |
+| P017 | integration test cryptic error when search tool unregistered | 2026-06-03 | test/helpers/parse-envelope.mjs throws a named cause (tool not registered, check RAPIDAPI_KEY / getRoot degraded) instead of cryptic `Unexpected token 'M'`; wired into server.test.mjs subtests 2/3 + health. Composes with P007. | no - observed: 24/24 unit tests pass (incl 4 new parse-envelope cases RED->GREEN); awaits a production getRoot-degraded CI cycle to confirm the named cause appears in the workflow log |
 
 ## Parked
 
