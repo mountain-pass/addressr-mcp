@@ -39,7 +39,7 @@ Both tickets track active upstream bugs (P005 in `risk-score-mark.sh`; P006 in c
 The surface-batch-confirm flow already catches the false-positives:
 - The user reviews each CLOSE-CANDIDATE-WITH-CAVEAT entry and dispositions it (keep / close / defer).
 - For plugin-tracking tickets, the answer is always "keep" and (per user direction 2026-06-02) "report upstream".
-- No silent auto-close — the caveat shape is itself the safety net.
+- No silent auto-close - the caveat shape is itself the safety net.
 
 This means the bug is non-blocking but adds friction every review cycle.
 
@@ -88,4 +88,13 @@ Option 1 is the natural fit: zero configuration, infers correctly from the insta
 - relevance evaluator: `~/.claude/plugins/marketplaces/windyroad/packages/itil/bin/wr-itil-evaluate-relevance`
 - canonical script body: `~/.claude/plugins/marketplaces/windyroad/packages/itil/scripts/evaluate-relevance.sh`
 - ADR-079 (Relevance-close design, Phase 1 + Phase 2)
-- P005 + P006 — the two false-positive observations from this session
+- P005 + P006 - the two false-positive observations from this session
+
+## Reported Upstream
+
+- **URL**: https://github.com/windyroad/agent-plugins/issues/220
+- **Reported**: 2026-06-03
+- **Template used**: structured default (problem-shaped per ADR-033; upstream has problem-report.yml)
+- **Disclosure path**: public issue
+- **Cross-reference confirmed**: yes (issue body cites the downstream ticket path)
+- **Notes**: filed via /wr-itil:report-upstream; no dedup match on gh issue search. Batch of 4 (P010 #220, P013 #221, P014 #222, P016 #223).

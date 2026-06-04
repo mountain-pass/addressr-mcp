@@ -14,14 +14,14 @@
 
 Observed during the P012 work-problems AFK iter (2026-06-03). Specific citations:
 
-1. First delegation, description "JTBD review for P012 fix" (parallel call with wr-architect:agent on the same change scope): returned `Relevant files: docs/jtbd/maintainer/JTBD-102-...md (ratified, aligned); docs/jtbd/maintainer/persona.md (unratified — blocking); src/server.mjs (change site); docs/problems/known-error/012-...md`. NO PASS/ISSUES verdict text. NO analysis body. Architect agent in the same parallel call returned ~250 words of detailed analysis covering ADR-001/002/003/005. The first delegation ALSO failed to write the JTBD PostToolUse marker — the subsequent `test/dynamic-tools.test.mjs` Edit was blocked with: `BLOCKED: Cannot edit 'dynamic-tools.test.mjs' without JTBD review. ... No jtbd review marker found. The jtbd agent must review first.`
+1. First delegation, description "JTBD review for P012 fix" (parallel call with wr-architect:agent on the same change scope): returned `Relevant files: docs/jtbd/maintainer/JTBD-102-...md (ratified, aligned); docs/jtbd/maintainer/persona.md (unratified - blocking); src/server.mjs (change site); docs/problems/known-error/012-...md`. NO PASS/ISSUES verdict text. NO analysis body. Architect agent in the same parallel call returned ~250 words of detailed analysis covering ADR-001/002/003/005. The first delegation ALSO failed to write the JTBD PostToolUse marker - the subsequent `test/dynamic-tools.test.mjs` Edit was blocked with: `BLOCKED: Cannot edit 'dynamic-tools.test.mjs' without JTBD review. ... No jtbd review marker found. The jtbd agent must review first.`
 
-2. Re-delegation, description "JTBD review for test file edit" (sequential, single-target prompt with the specific test edits inlined): returned `Relevant paths: docs/jtbd/maintainer/JTBD-102-...md; docs/problems/known-error/012-...md; docs/jtbd/maintainer/persona.md (unratified, separate workstream)`. Same pattern — no analytical text. This invocation DID write the marker (Edit unblocked).
+2. Re-delegation, description "JTBD review for test file edit" (sequential, single-target prompt with the specific test edits inlined): returned `Relevant paths: docs/jtbd/maintainer/JTBD-102-...md; docs/problems/known-error/012-...md; docs/jtbd/maintainer/persona.md (unratified, separate workstream)`. Same pattern - no analytical text. This invocation DID write the marker (Edit unblocked).
 
 ## Symptoms
 
 - Two consecutive `wr-jtbd:agent` invocations in one iter both emit only a "Relevant files/paths" list with no analytical body text.
-- Marker-write behaviour appears non-deterministic between the two invocations (first failed, second succeeded — same project, same session, same context shape).
+- Marker-write behaviour appears non-deterministic between the two invocations (first failed, second succeeded - same project, same session, same context shape).
 - Re-delegation is the only observed workaround; the alternative is to bypass the JTBD gate (not policy-authorised).
 - Architect agent on identical-shape parallel calls emits full analytical body; the asymmetry suggests a JTBD-side response-template issue, not a shared agent-infrastructure failure.
 
@@ -40,7 +40,7 @@ Re-delegate `wr-jtbd:agent` with the same prompt. The second invocation has been
 ### Investigation Tasks
 
 - [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] Inspect `wr-jtbd:agent` definition (likely at `@windyroad/agent-plugins` upstream — packages/jtbd/agents/jtbd-lead.md or similar) for early-return paths after "Relevant files:" emission
+- [ ] Inspect `wr-jtbd:agent` definition (likely at `@windyroad/agent-plugins` upstream - packages/jtbd/agents/jtbd-lead.md or similar) for early-return paths after "Relevant files:" emission
 - [ ] Compare side-by-side to `wr-architect:agent`'s response-template structure to identify the divergence
 - [ ] Determine whether the marker-write inconsistency between invocation 1 (no marker) and invocation 2 (marker) correlates with the body-emission shape, or is independent
 - [ ] Decide whether to add a contract test for the JTBD verdict shape (PASS/ISSUES + relevant files + analytical body)
@@ -48,7 +48,7 @@ Re-delegate `wr-jtbd:agent` with the same prompt. The second invocation has been
 
 ### Suspected Root Cause
 
-Hypothesis: `wr-jtbd:agent`'s response template may terminate after emitting the "Relevant files:" block when the triage state is mixed — for example, JTBD-102 confirmed AND maintainer persona unratified (the actual state observed both times this iter). Under "single clean signal" alignment cases the agent may emit the full body; under mixed-signal cases it may bail to the files-only summary. This is a hypothesis only; needs verification by inspecting the agent definition.
+Hypothesis: `wr-jtbd:agent`'s response template may terminate after emitting the "Relevant files:" block when the triage state is mixed - for example, JTBD-102 confirmed AND maintainer persona unratified (the actual state observed both times this iter). Under "single clean signal" alignment cases the agent may emit the full body; under mixed-signal cases it may bail to the files-only summary. This is a hypothesis only; needs verification by inspecting the agent definition.
 
 ### Fix Strategy
 
@@ -62,10 +62,19 @@ Free-text capture per `/wr-retrospective:run-retro` Step 4b Stage 2 Option 3 (Ot
 
 - **Blocks**: (none)
 - **Blocked by**: (none)
-- **Composes with**: P005 (external-comms marker fails on empty session_id — same agent-marker-protocol family) for the marker-write half of this ticket. The body-emission half is independent.
+- **Composes with**: P005 (external-comms marker fails on empty session_id - same agent-marker-protocol family) for the marker-write half of this ticket. The body-emission half is independent.
 
 ## Related
 
 - Captured via `/wr-itil:capture-problem` during P012 work-problems iter retro (2026-06-03).
-- Companion signal: ADR-026 grounding requirement — agents MUST cite reasoning, not just enumerate files. The files-only verdict shape silently violates this.
+- Companion signal: ADR-026 grounding requirement - agents MUST cite reasoning, not just enumerate files. The files-only verdict shape silently violates this.
 - See also: `~/.claude/projects/-Users-tomhoward-Projects-addressr-mcp/memory/feedback_skill_separation_not_scope_exclusion.md` (separate-agent-tool surfaces are usable; the contract issue is the agent's output, not its discoverability).
+
+## Reported Upstream
+
+- **URL**: https://github.com/windyroad/agent-plugins/issues/221
+- **Reported**: 2026-06-03
+- **Template used**: structured default (problem-shaped per ADR-033; upstream has problem-report.yml)
+- **Disclosure path**: public issue
+- **Cross-reference confirmed**: yes (issue body cites the downstream ticket path)
+- **Notes**: filed via /wr-itil:report-upstream; no dedup match on gh issue search. Batch of 4 (P010 #220, P013 #221, P014 #222, P016 #223).

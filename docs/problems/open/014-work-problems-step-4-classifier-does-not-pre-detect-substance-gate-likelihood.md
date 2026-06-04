@@ -57,3 +57,12 @@ This is an upstream @windyroad/itil plugin improvement (the SKILL.md lives at pa
 - **Upstream report pending** - external dependency identified (@windyroad/itil plugin SKILL.md at `packages/itil/skills/work-problems/SKILL.md` in the windyroad marketplace); invoke /wr-itil:report-upstream when ready
 - captured via /wr-itil:capture-problem during /wr-retrospective:run-retro 2026-06-03 (session-level retro at end of AFK /wr-itil:work-problems loop); P342 mechanical-stage carve-out for recurring class-of-behaviour
 - This session's iter 1 (P008 skipped on substance gate) and orchestrator's iter 2 routing decision (P009 deferred, P012 picked instead) are the motivating observations
+
+## Reported Upstream
+
+- **URL**: https://github.com/windyroad/agent-plugins/issues/222
+- **Reported**: 2026-06-03
+- **Template used**: structured default (problem-shaped per ADR-033; upstream has problem-report.yml)
+- **Disclosure path**: public issue
+- **Cross-reference confirmed**: yes (issue body cites the downstream ticket path)
+- **Notes**: filed via /wr-itil:report-upstream; no dedup match on gh issue search. Batch of 4 (P010 #220, P013 #221, P014 #222, P016 #223).

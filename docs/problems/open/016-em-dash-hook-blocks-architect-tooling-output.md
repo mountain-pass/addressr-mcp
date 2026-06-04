@@ -77,3 +77,12 @@ Shipped 2026-06-03: `scripts/check-em-dashes.sh` skip-list extended to also skip
 - ADR-077 - the decisions-compendium refresh contract; `wr-architect-generate-decisions-compendium` is the generator that emits em-dashes.
 - Upstream architect tooling: `@windyroad/agent-plugins` (packages/architect skills capture-adr / create-adr + bin/wr-architect-generate-decisions-compendium).
 - **Upstream report pending** - external dependency identified; invoke /wr-itil:report-upstream when ready
+
+## Reported Upstream
+
+- **URL**: https://github.com/windyroad/agent-plugins/issues/223
+- **Reported**: 2026-06-03
+- **Template used**: structured default (problem-shaped per ADR-033; upstream has problem-report.yml)
+- **Disclosure path**: public issue
+- **Cross-reference confirmed**: yes (issue body cites the downstream ticket path)
+- **Notes**: filed via /wr-itil:report-upstream; no dedup match on gh issue search. Batch of 4 (P010 #220, P013 #221, P014 #222, P016 #223).
