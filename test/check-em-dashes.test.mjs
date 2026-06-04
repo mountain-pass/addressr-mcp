@@ -1,6 +1,6 @@
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -55,6 +55,30 @@ describe('scripts/check-em-dashes.sh', () => {
     const result = spawnSync('bash', [SCRIPT, file], { encoding: 'utf8' });
 
     assert.equal(result.status, 0, `archive file should be skipped; stderr=${result.stderr}`);
+  });
+
+  it('skips the auto-generated docs/decisions/README.md compendium (P016)', () => {
+    const dir = join(tmp, 'docs', 'decisions');
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, 'README.md');
+    // The architect compendium generator emits U+2014 mechanically (e.g. "5 ADRs total — 5 in-force").
+    writeFileSync(file, `# Decisions\n\n5 ADRs total ${EM_DASH} 5 in-force\n`);
+
+    const result = spawnSync('bash', [SCRIPT, file], { encoding: 'utf8' });
+
+    assert.equal(result.status, 0, `auto-generated compendium should be skipped; stderr=${result.stderr}`);
+  });
+
+  it('still flags a hand-authored ADR body under docs/decisions/ (P016 boundary)', () => {
+    const dir = join(tmp, 'docs', 'decisions');
+    mkdirSync(dir, { recursive: true });
+    const file = join(dir, '006-some-decision.proposed.md');
+    writeFileSync(file, `# Decision\n\nHand-authored prose with an em-dash ${EM_DASH} here.\n`);
+
+    const result = spawnSync('bash', [SCRIPT, file], { encoding: 'utf8' });
+
+    assert.equal(result.status, 1, `ADR bodies must still be checked; stderr=${result.stderr}`);
+    assert.match(result.stderr, /006-some-decision/, 'stderr should name the offending ADR body');
   });
 
   it('handles multiple files, failing the run when ANY file contains U+2014', () => {

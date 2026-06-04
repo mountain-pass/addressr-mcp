@@ -24,6 +24,11 @@ for file in "$@"; do
   # legacy em-dashes from before this hook existed.
   case "$file" in
     */README-history.md|README-history.md) continue ;;
+    # docs/decisions/README.md is the auto-generated ADR compendium
+    # (wr-architect-generate-decisions-compendium per ADR-077). The generator
+    # emits U+2014 mechanically. Skip ONLY this generated file - hand-authored
+    # ADR bodies under docs/decisions/ are still checked. See P016.
+    docs/decisions/README.md|*/docs/decisions/README.md) continue ;;
   esac
   if matches=$(grep -nF -- "$EM_DASH" "$file"); then
     while IFS= read -r line; do

@@ -50,10 +50,18 @@ Two fix shapes:
 
 ### Investigation Tasks
 
+- [x] Decide between local skip-list (compendium only) and upstream report (or both) - decided BOTH: ship Option A local stop-gap now, report Option B upstream
+- [x] Confirm the ADR skeleton template em-dash locations - frontmatter sentinel `[unspecified (em-dash) fill at canonical review]` + deferred-section pointers, both in the ADR BODY (not the compendium); these are NOT covered by Option A
 - [ ] Re-rate Priority and Effort at next /wr-itil:review-problems
-- [ ] Decide between local skip-list (compendium only) and upstream report (or both)
-- [ ] Confirm the ADR skeleton template em-dash locations (frontmatter sentinel + deferred pointers) and whether they are configurable
-- [ ] Report upstream to @windyroad/agent-plugins once the fix shape is settled
+- [ ] Report upstream to @windyroad/agent-plugins (Option B - the template + generator em-dashes); this is the remaining work for full resolution
+
+## Partial Mitigation Shipped (Option A)
+
+Shipped 2026-06-03: `scripts/check-em-dashes.sh` skip-list extended to also skip the auto-generated `docs/decisions/README.md` compendium (the `wr-architect-generate-decisions-compendium` output per ADR-077). Architect-reviewed boundary: skip ONLY the generated compendium, NOT hand-authored ADR bodies (where the no-em-dash policy should still apply). TDD: 2 new cases in `test/check-em-dashes.test.mjs` (skip the compendium / still flag a hand-authored ADR body under docs/decisions/); 7/7 em-dash tests, 26/26 unit suite green.
+
+**This is PARTIAL.** Option A stops the auto-generated compendium from blocking commits, but the `/wr-architect:capture-adr` + `/wr-architect:create-adr` skeleton TEMPLATE still emits em-dashes into the ADR BODY (frontmatter sentinel + deferred pointers), which is correctly NOT skipped. So a future ADR capture still requires de-em-dashing the skeleton body. Full resolution needs Option B (upstream report so the template uses hyphens). Ticket stays Open until the upstream report lands.
+
+- **Upstream report pending** - external dependency identified; invoke /wr-itil:report-upstream when ready
 
 ## Dependencies
 
