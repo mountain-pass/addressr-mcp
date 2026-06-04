@@ -32,3 +32,4 @@ Contributor maintaining and releasing the Addressr MCP server.
 |----|-----|------|
 | JTBD-101 | Release New Version | [maintainer/JTBD-101-release-new-version.proposed.md](maintainer/JTBD-101-release-new-version.proposed.md) |
 | JTBD-102 | Diagnose Red CI Quickly | [maintainer/JTBD-102-diagnose-red-ci-quickly.proposed.md](maintainer/JTBD-102-diagnose-red-ci-quickly.proposed.md) |
+| JTBD-103 | Enforce Prose Style Automatically | [maintainer/JTBD-103-enforce-prose-style-automatically.proposed.md](maintainer/JTBD-103-enforce-prose-style-automatically.proposed.md) |
